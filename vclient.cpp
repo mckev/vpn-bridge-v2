@@ -10,16 +10,16 @@ int open_raw_socket() {
     static const int SOCK_RAW       = 3;
     static const int ETH_P_ALL      = 0x0003;
     int sd_incoming = (int) socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if (sd_incoming == -1) {
-        std::cerr << "Error while opening raw socket: socket() error " << errno << ": " << strerror(errno) << std::endl;
-        exit(1);
-    }
     return sd_incoming;
 }
 
 
 int main() {
     int sd_incoming = open_raw_socket();
+    if (sd_incoming == -1) {
+        std::cerr << "Error while opening raw socket: socket() error " << errno << ": " << strerror(errno) << std::endl;
+        exit(1);
+    }
     std::cout << "Listening on the wire..." << std::endl;
     while (true) {
         // Raw packet capture
@@ -38,11 +38,12 @@ int main() {
 
         // Case Linux
         {
+            // Layer 2: Ethernet packet
             Eth* eth = (Eth*) buffer;
             eth->print_eth();
-            // Ignore non IP packet
             if (ntohs(eth->h_proto) != Eth::ETH_P_IP) continue;
 
+            // Layer 3: IP packet
             ip = (Ip*) (buffer + sizeof(Eth));
             ip->print_ip();
             size -= sizeof(Eth);
