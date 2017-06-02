@@ -5,14 +5,15 @@
 #include <cstdint>
 
 
-#define __LITTLE_ENDIAN_BITFIELD                            // Intel is using Little Endian format
+#pragma pack(1)                                             // disable alignment of struct members
+#define __LITTLE_ENDIAN_BITFIELD                            // intel is using little-endian format
 
 
 class Eth {
     public:
     // from: linux/if_ether.h
     static const int ETH_ALEN       = 6;                    // octets in one ethernet address
-    static const int ETH_P_IP       = 0x0800;               // Internet Protocol packet
+    static const int ETH_P_IP       = 0x0800;               // ip packet
 
     uint8_t         h_dest[ETH_ALEN];                       // destination ethernet address
     uint8_t         h_source[ETH_ALEN];                     // source ethernet address
@@ -68,7 +69,7 @@ struct sockaddr_in {
     int16_t         sin_family;                             // e.g. AF_INET
     uint16_t        sin_port;                               // e.g. htons(3490)
     struct in_addr  sin_addr;
-    uint8_t         sin_zero[8];                            // zero this if you want to
+    uint8_t         sin_zero[8];
 };
 typedef int socklen_t;
 extern "C" socklen_t recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen);

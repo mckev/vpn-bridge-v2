@@ -5,8 +5,10 @@ if [ "$machine" = "x86_64" ]; then
     # Pre-requisites:
     #    yum install -y gcc-c++
     CXXFLAGS="-m64"
+
 elif [ "$machine" = "armv6l" ]; then
     CXXFLAGS=""
+
 else
     echo "Unsupported processor $machine"
     exit 1
