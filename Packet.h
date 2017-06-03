@@ -9,9 +9,10 @@
 #define __LITTLE_ENDIAN_BITFIELD                            // intel is using little-endian format
 
 
+// LAYER 2
+
 class Eth {
     public:
-    // from: linux/if_ether.h
     static const int ETH_ALEN       = 6;                    // octets in one ethernet address
     static const int ETH_P_IP       = 0x0800;               // ip packet
 
@@ -19,12 +20,19 @@ class Eth {
     uint8_t         h_source[ETH_ALEN];                     // source ethernet address
     uint16_t        h_proto;                                // packet type id
 
-    void print_eth() const;
+    void print() const;
 };
 
 
+// LAYER 3
+
 class Ip {
     public:
+    static const int IP_MAXPACKET   = 0xFFFF;
+    static const int IPPROTO_ICMP   = 1;
+    static const int IPPROTO_TCP    = 6;
+    static const int IPPROTO_UDP    = 17;
+
     #if defined (__LITTLE_ENDIAN_BITFIELD)
     uint8_t         ihl:4, version:4;
     #elif defined (__BIG_ENDIAN_BITFIELD)
@@ -42,14 +50,60 @@ class Ip {
     uint32_t        saddr;
     uint32_t        daddr;
 
-    static const int IP_MAXPACKET   = 0xFFFF;
-    // from: linux/in.h
-    static const int IPPROTO_ICMP   = 1;
-    static const int IPPROTO_TCP    = 6;
-    static const int IPPROTO_UDP    = 17;
-
-    void print_ip() const;
+    void print() const;
 };
+
+
+// LAYER 4
+
+class Tcp {
+    public:
+    uint16_t        source;
+    uint16_t        dest;
+    uint32_t        seq;
+    uint32_t        ack_seq;
+    #if defined (__LITTLE_ENDIAN_BITFIELD)
+    uint16_t        res1:4, doff:4, fin:1, syn:1, rst:1, psh:1, ack:1, urg:1, ece:1, cwr:1;
+    #elif defined (__BIG_ENDIAN_BITFIELD)
+    uint16_t        doff:4, res1:4, cwr:1, ece:1, urg:1, ack:1, psh:1, rst:1, syn:1, fin:1;
+    #error "Unknown bitfield type"
+    #endif
+    uint16_t        window;
+    uint16_t        check;
+    uint16_t        urg_ptr;
+
+    void print() const;
+};
+
+class Udp {
+    public:
+    uint16_t        source;
+    uint16_t        dest;
+    uint16_t        len;
+    uint16_t        check;
+};
+
+class Icmp {
+    public:
+    static const int ICMP_ECHOREPLY = 0;
+    static const int ICMP_TIME_EXCEEDED = 11;
+
+    uint8_t         type;
+    uint8_t         code;
+    uint16_t        checksum;
+    union {
+        struct {
+            uint16_t    id;
+            uint16_t    sequence;
+        } echo;
+        uint32_t    gateway;
+        struct {
+            uint16_t    __unused;
+            uint16_t    mtu;
+        } frag;
+    } un;
+};
+
 
 
 // Socket definitions

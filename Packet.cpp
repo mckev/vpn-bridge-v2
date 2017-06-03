@@ -3,7 +3,7 @@
 #include "Packet.h"
 
 
-void Eth::print_eth() const {
+void Eth::print() const {
     std::cout << "Ethernet Header" << std::endl;
     std::cout << "   |-Destination Address  : " << std::hex
                                                 << std::setfill('0') << std::setw(2) << (int) h_dest[0] << ":"
@@ -23,10 +23,10 @@ void Eth::print_eth() const {
 }
 
 
-void Ip::print_ip() const {
+void Ip::print() const {
     std::cout << "IP Header" << std::endl;
     std::cout << "   |-IP Version           : " << (int) version << std::endl;
-    std::cout << "   |-IP Header Length     : " << (int) ihl << " dwords or " << ihl*4 << " bytes" << std::endl;
+    std::cout << "   |-IP Header Length     : " << (int) ihl << " dwords or " << ihl * 4 << " bytes" << std::endl;
     if (ihl != 5) {
         std::cout << "                            (IHL > 5: IP Options exists)" << std::endl;
     }
@@ -44,4 +44,29 @@ void Ip::print_ip() const {
                                                 << (int) *(((uint8_t*) &daddr) + 1) << "."
                                                 << (int) *(((uint8_t*) &daddr) + 2) << "."
                                                 << (int) *(((uint8_t*) &daddr) + 3) << std::endl;
+}
+
+
+void Tcp::print() const {
+    std::cout << "TCP Header" << std::endl;
+    std::cout << "   |-Source Port          : " << ntohs(source) << std::endl;
+    std::cout << "   |-Destination Port     : " << ntohs(dest) << std::endl;
+    std::cout << "   |-Sequence Number      : " << ntohl(seq) << std::endl;
+    std::cout << "   |-Acknowledge Number   : " << ntohl(ack_seq) << std::endl;
+    std::cout << "   |-Header Length        : " << doff << " dwords or " << doff * 4 << " bytes" << std::endl;
+    if (doff != 5) {
+        std::cout << "                            (Data offset > 5: TCP Options exists)" << std::endl;
+    }
+    std::cout << "   |-Reserved             : " << res1 << std::endl;
+    std::cout << "   |-CWR Flag             : " << cwr << std::endl;
+    std::cout << "   |-ECN Flag             : " << ece << std::endl;
+    std::cout << "   |-Urgent Flag          : " << urg << std::endl;
+    std::cout << "   |-Acknowledgement Flag : " << ack << std::endl;
+    std::cout << "   |-Push Flag            : " << psh << std::endl;
+    std::cout << "   |-Reset Flag           : " << rst << std::endl;
+    std::cout << "   |-Synchronise Flag     : " << syn << std::endl;
+    std::cout << "   |-Finish Flag          : " << fin << std::endl;
+    std::cout << "   |-Window               : " << ntohs(window) << std::endl;
+    std::cout << "   |-Checksum             : " << ntohs(check) << std::endl;
+    std::cout << "   |-Urgent Pointer       : " << urg_ptr << std::endl;
 }

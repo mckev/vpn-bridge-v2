@@ -40,14 +40,24 @@ int main() {
         {
             // Layer 2: Ethernet packet
             Eth* eth = (Eth*) buffer;
-            eth->print_eth();
+            eth->print();
             if (ntohs(eth->h_proto) != Eth::ETH_P_IP) continue;
 
             // Layer 3: IP packet
-            ip = (Ip*) (buffer + sizeof(Eth));
-            ip->print_ip();
+            ip = (Ip*) ((uint8_t*) buffer + sizeof(Eth));
             size -= sizeof(Eth);
         }
+        ip->print();
+
+        // Layer 4
+        switch (ip->protocol) {
+            case Ip::IPPROTO_TCP:
+                Tcp* tcp = (Tcp*) ((uint8_t*) ip + (ip->ihl * 4));
+                tcp->print();
+                break;
+        }
+
+        std::cout << std::endl;
     }
     return 0;
 }
