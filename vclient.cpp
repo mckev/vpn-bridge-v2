@@ -5,10 +5,10 @@
 
 
 int open_raw_socket() {
-    static const int AF_PACKET      = 17;
-    static const int PF_PACKET      = AF_PACKET;
-    static const int SOCK_RAW       = 3;
-    static const int ETH_P_ALL      = 0x0003;
+    static constexpr auto AF_PACKET = 17;
+    static constexpr auto PF_PACKET = AF_PACKET;
+    static constexpr auto SOCK_RAW  = 3;
+    static constexpr auto ETH_P_ALL = 0x0003;
     int sd_incoming = (int) socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     return sd_incoming;
 }
@@ -28,8 +28,8 @@ int main() {
         struct sockaddr_in  from;
         socklen_t           fromlen = sizeof(from);
         size = recvfrom(sd_incoming, (char*) buffer, sizeof(buffer), 0, (struct sockaddr*) &from, &fromlen);
-        std::cout << std::endl;
-        std::cout << "Receiving " << size << " bytes" << std::endl;
+        std::cout << std::endl
+                  << "Receiving " << size << " bytes" << std::endl;
 
         // There are two possible cases:
         //    1. In Hostgator, we receive IP packets (layer 3).
@@ -55,7 +55,7 @@ int main() {
             case Ip::IPPROTO_TCP:
                 {
                     Tcp* tcp = (Tcp*) ((uint8_t*) ip + (ip->ihl * 4));
-                    // tcp->print();
+                    tcp->print();
                 }
                 break;
 

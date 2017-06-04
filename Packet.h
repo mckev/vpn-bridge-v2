@@ -13,8 +13,8 @@
 
 class Eth {
     public:
-    static const int ETH_ALEN       = 6;                    // octets in one ethernet address
-    static const int ETH_P_IP       = 0x0800;               // ip packet
+    static constexpr auto ETH_ALEN  = 6;                    // octets in one ethernet address
+    static constexpr auto ETH_P_IP  = 0x0800;               // ip packet
 
     uint8_t         h_dest[ETH_ALEN];                       // destination ethernet address
     uint8_t         h_source[ETH_ALEN];                     // source ethernet address
@@ -28,10 +28,10 @@ class Eth {
 
 class Ip {
     public:
-    static const int IP_MAXPACKET   = 0xFFFF;
-    static const int IPPROTO_ICMP   = 1;
-    static const int IPPROTO_TCP    = 6;
-    static const int IPPROTO_UDP    = 17;
+    static constexpr auto IP_MAXPACKET  = 0xFFFF;
+    static constexpr auto IPPROTO_ICMP  = 1;
+    static constexpr auto IPPROTO_TCP   = 6;
+    static constexpr auto IPPROTO_UDP   = 17;
 
     #if defined (__LITTLE_ENDIAN_BITFIELD)
     uint8_t         ihl:4, version:4;
@@ -87,8 +87,8 @@ class Udp {
 
 class Icmp {
     public:
-    static const int ICMP_ECHOREPLY = 0;
-    static const int ICMP_TIME_EXCEEDED = 11;
+    static constexpr auto ICMP_ECHOREPLY        = 0;
+    static constexpr auto ICMP_TIME_EXCEEDED    = 11;
 
     uint8_t         type;
     uint8_t         code;
