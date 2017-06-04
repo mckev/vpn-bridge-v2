@@ -9,7 +9,7 @@
 #define __LITTLE_ENDIAN_BITFIELD                            // intel is using little-endian format
 
 
-// LAYER 2
+// Layer 2
 
 class Eth {
     public:
@@ -24,7 +24,7 @@ class Eth {
 };
 
 
-// LAYER 3
+// Layer 3
 
 class Ip {
     public:
@@ -54,7 +54,7 @@ class Ip {
 };
 
 
-// LAYER 4
+// Layer 4
 
 class Tcp {
     public:
@@ -81,6 +81,8 @@ class Udp {
     uint16_t        dest;
     uint16_t        len;
     uint16_t        check;
+
+    void print() const;
 };
 
 class Icmp {
@@ -102,8 +104,9 @@ class Icmp {
             uint16_t    mtu;
         } frag;
     } un;
-};
 
+    void print() const;
+};
 
 
 // Socket definitions

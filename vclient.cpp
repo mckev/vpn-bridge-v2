@@ -28,6 +28,7 @@ int main() {
         struct sockaddr_in  from;
         socklen_t           fromlen = sizeof(from);
         size = recvfrom(sd_incoming, (char*) buffer, sizeof(buffer), 0, (struct sockaddr*) &from, &fromlen);
+        std::cout << std::endl;
         std::cout << "Receiving " << size << " bytes" << std::endl;
 
         // There are two possible cases:
@@ -52,12 +53,30 @@ int main() {
         // Layer 4
         switch (ip->protocol) {
             case Ip::IPPROTO_TCP:
-                Tcp* tcp = (Tcp*) ((uint8_t*) ip + (ip->ihl * 4));
-                tcp->print();
+                {
+                    Tcp* tcp = (Tcp*) ((uint8_t*) ip + (ip->ihl * 4));
+                    // tcp->print();
+                }
                 break;
-        }
 
-        std::cout << std::endl;
+            case Ip::IPPROTO_UDP:
+                {
+                    Udp* udp = (Udp*) ((uint8_t*) ip + (ip->ihl * 4));
+                    udp->print();
+                }
+                break;
+
+            case Ip::IPPROTO_ICMP:
+                {
+                    Icmp* icmp = (Icmp*) ((uint8_t*) ip + (ip->ihl * 4));
+                    icmp->print();
+                }
+                break;
+
+            default:
+                // Ignore non TCP, UDP or ICMP data
+                continue;
+        }
     }
     return 0;
 }

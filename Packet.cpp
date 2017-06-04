@@ -70,3 +70,25 @@ void Tcp::print() const {
     std::cout << "   |-Checksum             : " << ntohs(check) << std::endl;
     std::cout << "   |-Urgent Pointer       : " << urg_ptr << std::endl;
 }
+
+
+void Udp::print() const {
+    std::cout << "UDP Header" << std::endl;
+    std::cout << "   |-Source Port          : " << ntohs(source) << std::endl;
+    std::cout << "   |-Destination Port     : " << ntohs(dest) << std::endl;
+    std::cout << "   |-UDP Length           : " << ntohs(len) << std::endl;
+    std::cout << "   |-UDP Checksum         : " << ntohs(check) << std::endl;
+}
+
+
+void Icmp::print() const {
+    std::cout << "ICMP Header" << std::endl;
+    std::cout << "   |-Type                 : " << (int) type << std::endl;
+    if (type == Icmp::ICMP_TIME_EXCEEDED) {
+        std::cout << "                            (TTL Expired)" << std::endl;
+    } else if (type == Icmp::ICMP_ECHOREPLY) {
+        std::cout << "                            (ICMP Echo Reply)" << std::endl;
+    }
+    std::cout << "   |-Code                 : " << (int) code << std::endl;
+    std::cout << "   |-Checksum             : " << ntohs(checksum) << std::endl;
+}
