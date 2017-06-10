@@ -49,26 +49,40 @@ int main() {
             size -= sizeof(Eth);
         }
         ip->print();
+        {
+            // Verify that our IP checksum algorithm is correct
+            uint16_t original_checksum = ip->check;
+            ip->check = 0;
+            ip->check = Ip::checksum(ip, ip->ihl*4);
+            assert(ip->check == original_checksum);
+        }
 
         // Layer 4
         switch (ip->protocol) {
             case Ip::IPPROTO_TCP:
                 {
-                    Tcp* tcp = (Tcp*) ((uint8_t*) ip + (ip->ihl * 4));
+                    Tcp* tcp = (Tcp*) ((uint8_t*) ip + (ip->ihl*4));
                     tcp->print();
+                    {
+                        // Verify that our TCP checksum algorithm is correct
+                        uint16_t original_checksum = tcp->check;
+                        tcp->check = 0;
+                        tcp->check = Tcp::checksum(tcp, ntohs(ip->tot_len) - ip->ihl*4, ip->saddr, ip->daddr);
+                        assert(tcp->check == original_checksum);
+                    }
                 }
                 break;
 
             case Ip::IPPROTO_UDP:
                 {
-                    Udp* udp = (Udp*) ((uint8_t*) ip + (ip->ihl * 4));
+                    Udp* udp = (Udp*) ((uint8_t*) ip + (ip->ihl*4));
                     udp->print();
                 }
                 break;
 
             case Ip::IPPROTO_ICMP:
                 {
-                    Icmp* icmp = (Icmp*) ((uint8_t*) ip + (ip->ihl * 4));
+                    Icmp* icmp = (Icmp*) ((uint8_t*) ip + (ip->ihl*4));
                     icmp->print();
                 }
                 break;

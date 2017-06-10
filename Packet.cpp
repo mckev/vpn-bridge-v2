@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include "Packet.h"
@@ -47,6 +48,38 @@ void Ip::print() const {
 }
 
 
+uint16_t Ip::checksum(const void* ip, int len) {
+    // Ref: http://www.pdbuchan.com/rawsock/tcp4.c
+
+    // Set ip->check to 0 before calling this function
+    assert(((Ip*) ip)->check == 0);
+
+    const uint16_t* w = (uint16_t*) ip;
+    int nleft = len;    // len is usually 20 bytes
+    uint32_t sum = 0;
+
+    while (nleft > 1) {
+        sum += *w++;
+        if (sum & 0x80000000) {
+            sum = (sum & 0xFFFF) + (sum >> 16);
+        }
+        nleft -= 2;
+    }
+
+    if (nleft == 1) {
+        sum += *((uint8_t*) w);
+    }
+
+    // Add the carries
+    while (sum >> 16) {
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    }
+
+    // Return the invert of sum
+    return (uint16_t) ~sum;
+}
+
+
 void Tcp::print() const {
     std::cout << "TCP Header" << std::endl
               << "   |-Source Port          : " << ntohs(source) << std::endl
@@ -69,6 +102,50 @@ void Tcp::print() const {
               << "   |-Window               : " << ntohs(window) << std::endl
               << "   |-Checksum             : " << ntohs(check) << std::endl
               << "   |-Urgent Pointer       : " << urg_ptr << std::endl;
+}
+
+
+uint16_t Tcp::checksum(const void* tcp, int len, uint32_t src_addr, uint32_t dest_addr) {
+    // Ref:
+    // Code: http://minirighi.sourceforge.net/html/tcp_8c-source.html
+    // How to disable checksum offloading: ethtool -K eth0 rx off tx off   (https://stackoverflow.com/questions/15538786/how-is-tcps-checksum-calculated-when-we-use-tcpdump-to-capture-packets-which-we)
+
+    // Set tcp->check to 0 before calling this function
+    assert(((Tcp*) tcp)->check == 0);
+
+    const uint16_t* w = (uint16_t*) tcp;
+    uint16_t* ip_src = (uint16_t*) &src_addr;
+    uint16_t* ip_dst = (uint16_t*) &dest_addr;
+    int nleft = len;
+    uint32_t sum = 0;
+
+    while (nleft > 1) {
+        sum += *w++;
+        if (sum & 0x80000000) {
+            sum = (sum & 0xFFFF) + (sum >> 16);
+        }
+        nleft -= 2;
+    }
+
+    if (nleft == 1) {
+        sum += *((uint8_t*) w);
+    }
+
+    // Add the pseudo headers
+    sum += *(ip_src++);
+    sum += *ip_src;
+    sum += *(ip_dst++);
+    sum += *ip_dst;
+    sum += htons(Ip::IPPROTO_TCP);
+    sum += htons(len);
+
+    // Add the carries
+    while (sum >> 16) {
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    }
+
+    // Return the invert of sum
+    return (uint16_t) ~sum;
 }
 
 
