@@ -106,9 +106,7 @@ void Tcp::print() const {
 
 
 uint16_t Tcp::checksum(const void* tcp, int len, uint32_t src_addr, uint32_t dest_addr) {
-    // Ref:
-    // Code: http://minirighi.sourceforge.net/html/tcp_8c-source.html
-    // How to disable checksum offloading: ethtool -K eth0 rx off tx off   (https://stackoverflow.com/questions/15538786/how-is-tcps-checksum-calculated-when-we-use-tcpdump-to-capture-packets-which-we)
+    // Ref: http://minirighi.sourceforge.net/html/tcp_8c-source.html
 
     // Set tcp->check to 0 before calling this function
     assert(((Tcp*) tcp)->check == 0);

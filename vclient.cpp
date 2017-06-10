@@ -65,6 +65,7 @@ int main() {
                     tcp->print();
                     {
                         // Verify that our TCP checksum algorithm is correct
+                        // How to disable checksum offloading: ethtool -K eth0 rx off tx off   (https://stackoverflow.com/questions/15538786/how-is-tcps-checksum-calculated-when-we-use-tcpdump-to-capture-packets-which-we)
                         uint16_t original_checksum = tcp->check;
                         tcp->check = 0;
                         tcp->check = Tcp::checksum(tcp, ntohs(ip->tot_len) - ip->ihl*4, ip->saddr, ip->daddr);
