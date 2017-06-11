@@ -90,12 +90,12 @@ void Ip::print() const {
 }
 
 
-uint16_t Ip::checksum(const Ip* ip, int len) {
+uint16_t Ip::checksum() const {
     // Set ip->check to 0 before calling this function
-    assert(ip->check == 0);
+    assert(this->check == 0);
 
     // len is usually 20 bytes
-    return calculate_checksum(ip, len, 0, 0, 0);
+    return calculate_checksum(this, this->ihl * 4, 0, 0, 0);
 }
 
 
@@ -124,11 +124,11 @@ void Tcp::print() const {
 }
 
 
-uint16_t Tcp::checksum(const Tcp* tcp, int len, uint32_t src_addr, uint32_t dest_addr) {
+uint16_t Tcp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
     // Set tcp->check to 0 before calling this function
-    assert(tcp->check == 0);
-    
-    return calculate_checksum(tcp, len, Ip::IPPROTO_TCP, src_addr, dest_addr);
+    assert(this->check == 0);
+
+    return calculate_checksum(this, len, Ip::IPPROTO_TCP, src_addr, dest_addr);
 }
 
 
@@ -141,11 +141,11 @@ void Udp::print() const {
 }
 
 
-uint16_t Udp::checksum(const Udp* udp, int len, uint32_t src_addr, uint32_t dest_addr) {
+uint16_t Udp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
     // Set udp->check to 0 before calling this function
-    assert(udp->check == 0);
-    
-    return calculate_checksum(udp, len, Ip::IPPROTO_UDP, src_addr, dest_addr);
+    assert(this->check == 0);
+
+    return calculate_checksum(this, len, Ip::IPPROTO_UDP, src_addr, dest_addr);
 }
 
 
@@ -162,9 +162,9 @@ void Icmp::print() const {
 }
 
 
-uint16_t Icmp::checksum(const Icmp* icmp, int len) {
+uint16_t Icmp::checksum(int len) const {
     // Set icmp->check to 0 before calling this function
-    assert(icmp->check == 0);
-    
-    return calculate_checksum(icmp, len, 0, 0, 0);
+    assert(this->check == 0);
+
+    return calculate_checksum(this, len, 0, 0, 0);
 }

@@ -51,7 +51,7 @@ class Ip {
     uint32_t        daddr;
 
     void print() const;
-    static uint16_t checksum(const Ip* ip, int len);
+    uint16_t checksum() const;
 };
 
 
@@ -74,7 +74,7 @@ class Tcp {
     uint16_t        urg_ptr;
 
     void print() const;
-    static uint16_t checksum(const Tcp* tcp, int len, uint32_t src_addr, uint32_t dest_addr);
+    uint16_t checksum(int len, uint32_t src_addr, uint32_t dest_addr) const;
 };
 
 class Udp {
@@ -85,7 +85,7 @@ class Udp {
     uint16_t        check;
 
     void print() const;
-    static uint16_t checksum(const Udp* udp, int len, uint32_t src_addr, uint32_t dest_addr);
+    uint16_t checksum(int len, uint32_t src_addr, uint32_t dest_addr) const;
 };
 
 class Icmp {
@@ -109,7 +109,7 @@ class Icmp {
     } un;
 
     void print() const;
-    static uint16_t checksum(const Icmp* icmp, int len);
+    uint16_t checksum(int len) const;
 };
 
 
