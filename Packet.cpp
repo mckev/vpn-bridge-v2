@@ -10,7 +10,7 @@ static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint3
     // TCP: http://minirighi.sourceforge.net/html/tcp_8c-source.html
     // UDP: http://minirighi.sourceforge.net/html/udp_8c-source.html
 
-    uint16_t* w = (uint16_t*) buffer;
+    const uint16_t* w = static_cast<const uint16_t*>(buffer);
     int nleft = len;
     uint32_t sum = 0;
     while (nleft > 1) {
@@ -26,8 +26,8 @@ static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint3
 
     // Add the pseudo headers
     if (proto != 0) {
-        uint16_t* ip_src = (uint16_t*) &src_addr;
-        uint16_t* ip_dst = (uint16_t*) &dest_addr;
+        const uint16_t* ip_src = reinterpret_cast<const uint16_t*>(&src_addr);
+        const uint16_t* ip_dst = reinterpret_cast<const uint16_t*>(&dest_addr);
         sum += *(ip_src++);
         sum += *ip_src;
         sum += *(ip_dst++);
@@ -42,7 +42,7 @@ static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint3
     }
 
     // Return the invert of sum
-    return (uint16_t) ~sum;
+    return static_cast<uint16_t>(~sum);
 }
 
 
