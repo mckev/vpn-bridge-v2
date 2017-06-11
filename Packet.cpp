@@ -4,6 +4,48 @@
 #include "Packet.h"
 
 
+static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint32_t src_addr, uint32_t dest_addr) {
+    // Ref:
+    // IP: http://www.pdbuchan.com/rawsock/tcp4.c
+    // TCP: http://minirighi.sourceforge.net/html/tcp_8c-source.html
+    // UDP: http://minirighi.sourceforge.net/html/udp_8c-source.html
+
+    uint16_t* w = (uint16_t*) buffer;
+    int nleft = len;
+    uint32_t sum = 0;
+    while (nleft > 1) {
+        sum += *w++;
+        if (sum & 0x80000000) {
+            sum = (sum & 0xFFFF) + (sum >> 16);
+        }
+        nleft -= 2;
+    }
+    if (nleft == 1) {
+        sum += *((uint8_t*) w);
+    }
+
+    // Add the pseudo headers
+    if (proto != 0) {
+        uint16_t* ip_src = (uint16_t*) &src_addr;
+        uint16_t* ip_dst = (uint16_t*) &dest_addr;
+        sum += *(ip_src++);
+        sum += *ip_src;
+        sum += *(ip_dst++);
+        sum += *ip_dst;
+        sum += htons(proto);
+        sum += htons(len);
+    }
+
+    // Add the carries
+    while (sum >> 16) {
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    }
+
+    // Return the invert of sum
+    return (uint16_t) ~sum;
+}
+
+
 void Eth::print() const {
     std::cout << "Ethernet Header" << std::endl
               << "   |-Destination Address  : " << std::hex
@@ -48,35 +90,12 @@ void Ip::print() const {
 }
 
 
-uint16_t Ip::checksum(const void* ip, int len) {
-    // Ref: http://www.pdbuchan.com/rawsock/tcp4.c
-
+uint16_t Ip::checksum(const Ip* ip, int len) {
     // Set ip->check to 0 before calling this function
-    assert(((Ip*) ip)->check == 0);
+    assert(ip->check == 0);
 
-    const uint16_t* w = (uint16_t*) ip;
-    int nleft = len;    // len is usually 20 bytes
-    uint32_t sum = 0;
-
-    while (nleft > 1) {
-        sum += *w++;
-        if (sum & 0x80000000) {
-            sum = (sum & 0xFFFF) + (sum >> 16);
-        }
-        nleft -= 2;
-    }
-
-    if (nleft == 1) {
-        sum += *((uint8_t*) w);
-    }
-
-    // Add the carries
-    while (sum >> 16) {
-        sum = (sum & 0xFFFF) + (sum >> 16);
-    }
-
-    // Return the invert of sum
-    return (uint16_t) ~sum;
+    // len is usually 20 bytes
+    return calculate_checksum(ip, len, 0, 0, 0);
 }
 
 
@@ -105,45 +124,11 @@ void Tcp::print() const {
 }
 
 
-uint16_t Tcp::checksum(const void* tcp, int len, uint32_t src_addr, uint32_t dest_addr) {
-    // Ref: http://minirighi.sourceforge.net/html/tcp_8c-source.html
-
+uint16_t Tcp::checksum(const Tcp* tcp, int len, uint32_t src_addr, uint32_t dest_addr) {
     // Set tcp->check to 0 before calling this function
-    assert(((Tcp*) tcp)->check == 0);
-
-    const uint16_t* w = (uint16_t*) tcp;
-    uint16_t* ip_src = (uint16_t*) &src_addr;
-    uint16_t* ip_dst = (uint16_t*) &dest_addr;
-    int nleft = len;
-    uint32_t sum = 0;
-
-    while (nleft > 1) {
-        sum += *w++;
-        if (sum & 0x80000000) {
-            sum = (sum & 0xFFFF) + (sum >> 16);
-        }
-        nleft -= 2;
-    }
-
-    if (nleft == 1) {
-        sum += *((uint8_t*) w);
-    }
-
-    // Add the pseudo headers
-    sum += *(ip_src++);
-    sum += *ip_src;
-    sum += *(ip_dst++);
-    sum += *ip_dst;
-    sum += htons(Ip::IPPROTO_TCP);
-    sum += htons(len);
-
-    // Add the carries
-    while (sum >> 16) {
-        sum = (sum & 0xFFFF) + (sum >> 16);
-    }
-
-    // Return the invert of sum
-    return (uint16_t) ~sum;
+    assert(tcp->check == 0);
+    
+    return calculate_checksum(tcp, len, Ip::IPPROTO_TCP, src_addr, dest_addr);
 }
 
 
@@ -156,6 +141,14 @@ void Udp::print() const {
 }
 
 
+uint16_t Udp::checksum(const Udp* udp, int len, uint32_t src_addr, uint32_t dest_addr) {
+    // Set udp->check to 0 before calling this function
+    assert(udp->check == 0);
+    
+    return calculate_checksum(udp, len, Ip::IPPROTO_UDP, src_addr, dest_addr);
+}
+
+
 void Icmp::print() const {
     std::cout << "ICMP Header" << std::endl
               << "   |-Type                 : " << (int) type << std::endl;
@@ -165,5 +158,13 @@ void Icmp::print() const {
         std::cout << "                            (ICMP Echo Reply)" << std::endl;
     }
     std::cout << "   |-Code                 : " << (int) code << std::endl
-              << "   |-Checksum             : " << ntohs(checksum) << std::endl;
+              << "   |-Checksum             : " << ntohs(check) << std::endl;
+}
+
+
+uint16_t Icmp::checksum(const Icmp* icmp, int len) {
+    // Set icmp->check to 0 before calling this function
+    assert(icmp->check == 0);
+    
+    return calculate_checksum(icmp, len, 0, 0, 0);
 }

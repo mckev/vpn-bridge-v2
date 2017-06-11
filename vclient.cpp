@@ -78,6 +78,13 @@ int main() {
                 {
                     Udp* udp = (Udp*) ((uint8_t*) ip + (ip->ihl*4));
                     udp->print();
+                    {
+                        // Verify that our UDP checksum algorithm is correct
+                        uint16_t original_checksum = udp->check;
+                        udp->check = 0;
+                        udp->check = Udp::checksum(udp, ntohs(ip->tot_len) - ip->ihl*4, ip->saddr, ip->daddr);
+                        assert(udp->check == original_checksum);
+                    }
                 }
                 break;
 
@@ -85,6 +92,13 @@ int main() {
                 {
                     Icmp* icmp = (Icmp*) ((uint8_t*) ip + (ip->ihl*4));
                     icmp->print();
+                    {
+                        // Verify that our ICMP checksum algorithm is correct
+                        uint16_t original_checksum = icmp->check;
+                        icmp->check = 0;
+                        icmp->check = Icmp::checksum(icmp, ntohs(ip->tot_len) - ip->ihl*4);
+                        assert(icmp->check == original_checksum);
+                    }
                 }
                 break;
 
