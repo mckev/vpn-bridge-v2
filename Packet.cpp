@@ -95,7 +95,8 @@ uint16_t Ip::checksum() const {
     assert(this->check == 0);
 
     // len is usually 20 bytes
-    return calculate_checksum(this, this->ihl * 4, 0, 0, 0);
+    int len = this->ihl * 4;
+    return calculate_checksum(this, len, 0, 0, 0);
 }
 
 
