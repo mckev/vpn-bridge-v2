@@ -66,9 +66,10 @@ int main() {
                     {
                         // Verify that our TCP checksum algorithm is correct
                         // How to disable checksum offloading: ethtool -K eth0 rx off tx off   (https://stackoverflow.com/questions/15538786/how-is-tcps-checksum-calculated-when-we-use-tcpdump-to-capture-packets-which-we)
+                        int size_tcp = ntohs(ip->tot_len) - (ip->ihl * 4);
                         uint16_t original_checksum = tcp->check;
                         tcp->check = 0;
-                        tcp->check = tcp->checksum(ntohs(ip->tot_len) - (ip->ihl * 4), ip->saddr, ip->daddr);
+                        tcp->check = tcp->checksum(size_tcp, ip->saddr, ip->daddr);
                         assert(tcp->check == original_checksum);
                     }
                 }
@@ -80,9 +81,10 @@ int main() {
                     udp->print();
                     {
                         // Verify that our UDP checksum algorithm is correct
+                        int size_udp = ntohs(ip->tot_len) - (ip->ihl * 4);
                         uint16_t original_checksum = udp->check;
                         udp->check = 0;
-                        udp->check = udp->checksum(ntohs(ip->tot_len) - (ip->ihl * 4), ip->saddr, ip->daddr);
+                        udp->check = udp->checksum(size_udp, ip->saddr, ip->daddr);
                         assert(udp->check == original_checksum);
                     }
                 }
@@ -94,9 +96,10 @@ int main() {
                     icmp->print();
                     {
                         // Verify that our ICMP checksum algorithm is correct
+                        int size_icmp = ntohs(ip->tot_len) - (ip->ihl * 4);
                         uint16_t original_checksum = icmp->check;
                         icmp->check = 0;
-                        icmp->check = icmp->checksum(ntohs(ip->tot_len) - (ip->ihl * 4));
+                        icmp->check = icmp->checksum(size_icmp);
                         assert(icmp->check == original_checksum);
                     }
                 }
