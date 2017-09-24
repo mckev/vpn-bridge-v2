@@ -1,4 +1,5 @@
-#include <cassert>
+#include <cassert>                                          // assert
+#include <cstring>                                          // strerror
 #include <iostream>
 #include "Packet.h"
 #include "VpnPacket.h"
@@ -15,8 +16,8 @@ int open_raw_socket() {
 
 
 int main() {
-    VpnPacketHello hello("Hello, world!");
-    hello.print();
+    VpnPacketHello hello_packet("Hello, world!");
+    hello_packet.print();
 
     int sd_incoming = open_raw_socket();
     if (sd_incoming == -1) {
@@ -35,7 +36,7 @@ int main() {
                   << "Receiving " << size << " bytes" << std::endl;
 
         // There are two possible cases:
-        //    1. In Hostgator, we receive IP packets (layer 3).
+        //    1. In Hostgator VPS, we receive IP packets (layer 3).
         //    2. In Linux box, we receive DataLink packets (layer 2).
         // So it is better to use IP packets since it works everywhere.
         Ip* ip;

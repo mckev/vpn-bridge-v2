@@ -3,7 +3,6 @@
 
 
 #include <cstdint>
-#include <cstring>
 #include <string>
 
 
@@ -18,7 +17,10 @@ class VpnPacket {
 
     static constexpr auto MAGIC = 0x484B;
     static constexpr auto MSG_TYPE_HELLO = 10;
-    VpnPacket(uint8_t msg_type, uint16_t msg_size) : magic{MAGIC}, msg_type{msg_type}, msg_size{msg_size} { }
+
+    VpnPacket(uint8_t msg_type, uint16_t msg_size);
+    void print() const;
+    ~VpnPacket();
 };
 
 
@@ -27,7 +29,7 @@ class VpnPacketHello: public VpnPacket {
     char            message[16];
 
     VpnPacketHello(const std::string& message);
-    void print() const;
+    ~VpnPacketHello();
 };
 
 
