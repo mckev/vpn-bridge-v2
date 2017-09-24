@@ -11,7 +11,7 @@
 
 class VpnPacket {
     public:
-    uint16_t        magic;
+    uint16_t        magic = MAGIC;
     uint8_t         msg_type;
     uint16_t        msg_size;
 
@@ -19,8 +19,8 @@ class VpnPacket {
     static constexpr auto MSG_TYPE_HELLO = 10;
 
     VpnPacket(uint8_t msg_type, uint16_t msg_size);
+    VpnPacket(uint8_t msg_type);                            // message size is unknown (yet) during constructor
     void print() const;
-    ~VpnPacket();
 };
 
 
@@ -29,7 +29,6 @@ class VpnPacketHello: public VpnPacket {
     char            message[16];
 
     VpnPacketHello(const std::string& message);
-    ~VpnPacketHello();
 };
 
 
