@@ -1,7 +1,7 @@
 #include <cassert>
-#include <cstring>
 #include <iostream>
 #include "Packet.h"
+#include "VpnPacket.h"
 
 
 int open_raw_socket() {
@@ -15,6 +15,9 @@ int open_raw_socket() {
 
 
 int main() {
+    VpnPacketHello hello("Hello, world!");
+    hello.print();
+
     int sd_incoming = open_raw_socket();
     if (sd_incoming == -1) {
         std::cerr << "Error while opening raw socket: socket() error " << errno << ": " << strerror(errno) << std::endl;
