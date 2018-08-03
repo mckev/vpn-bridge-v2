@@ -10,25 +10,25 @@
 
 
 class VpnPacket {
-    public:
-    uint16_t        magic = MAGIC;
-    uint8_t         msg_type;
-    uint16_t        msg_size;
+public:
+	uint16_t        magic = MAGIC;
+	uint8_t         msg_type;
+	uint16_t        msg_size;
 
-    static constexpr auto MAGIC = 0x484B;
-    static constexpr auto MSG_TYPE_HELLO = 10;
+	static constexpr auto MAGIC = 0x484B;
+	static constexpr auto MSG_TYPE_HELLO = 10;
 
-    VpnPacket(uint8_t msg_type, uint16_t msg_size);
-    VpnPacket(uint8_t msg_type);                            // message size is unknown (yet) during constructor
-    void print() const;
+	VpnPacket(uint8_t msg_type, uint16_t msg_size);
+	VpnPacket(uint8_t msg_type);                            // message size is unknown (yet) during constructor
+	void print() const;
 };
 
 
-class VpnPacketHello: public VpnPacket {
-    public:
-    char            message[16];
+class VpnPacketHello : public VpnPacket {
+public:
+	char            message[16];
 
-    VpnPacketHello(const std::string& message);
+	VpnPacketHello(const std::string& message);
 };
 
 
