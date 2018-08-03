@@ -5,6 +5,9 @@
 #include "VpnPacket.h"
 
 
+// #define HOSTGATOR
+
+
 int open_raw_socket() {
 	static constexpr auto AF_PACKET = 17;
 	static constexpr auto PF_PACKET = AF_PACKET;
@@ -36,12 +39,15 @@ int main() {
 			<< "Receiving " << size << " bytes" << std::endl;
 
 		// There are two possible cases:
-		//    1. In Hostgator VPS, we receive IP packets (layer 3).
+		//    1. In HostGator VPS, we receive IP packets (layer 3).
 		//    2. In Linux box, we receive DataLink packets (layer 2).
 		// So it is better to use IP packets since it works everywhere.
 		Ip* ip;
 
-		// Case Linux
+#ifdef HOSTGATOR
+		// Layer 3: IP packet
+		ip = (Ip*)buffer;
+#else
 		{
 			// Layer 2: Ethernet packet
 			Eth* eth = (Eth*)buffer;
@@ -52,6 +58,9 @@ int main() {
 			ip = (Ip*)((uint8_t*)buffer + sizeof(Eth));
 			size -= sizeof(Eth);
 		}
+#endif // HOSTGATOR
+
+		// Layer 3
 		ip->print();
 		{
 			// Verify that our IP checksum algorithm is correct

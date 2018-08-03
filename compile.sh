@@ -23,8 +23,8 @@ rm -f Packet.o
 rm -f VpnPacket.o
 rm -f vclient.o
 rm -f vclient
-g++ $CXXFLAGS -o Packet.o      -c Packet.cpp
-g++ $CXXFLAGS -o VpnPacket.o   -c VpnPacket.cpp
-g++ $CXXFLAGS -o vclient.o     -c vclient.cpp
+g++ $CXXFLAGS -o Packet.o      -c Packet.cc
+g++ $CXXFLAGS -o VpnPacket.o   -c VpnPacket.cc
+g++ $CXXFLAGS -o vclient.o     -c vclient.cc
 g++ $CXXFLAGS -o vclient       Packet.o VpnPacket.o vclient.o
 echo "Done."
