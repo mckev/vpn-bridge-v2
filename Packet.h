@@ -2,6 +2,9 @@
 #define PACKET_H_
 
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
 #include <cstdint>
 
 
@@ -29,6 +32,7 @@ public:
 	uint16_t        h_proto;                                // packet type id
 
 	void print() const;
+	static std::string mac_addr_to_str(const uint8_t* mac_addr);
 };
 
 
@@ -124,6 +128,9 @@ public:
 
 
 // Socket definitions
+typedef int socklen_t;
+
+#ifdef __linux__
 extern "C" uint32_t htonl(uint32_t hostlong);
 extern "C" uint16_t htons(uint16_t hostshort);
 extern "C" uint32_t ntohl(uint32_t netlong);
@@ -142,8 +149,8 @@ struct sockaddr_in {
 	struct in_addr  sin_addr;
 	uint8_t         sin_zero[8];
 };
-typedef int socklen_t;
 extern "C" socklen_t recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen);
+#endif
 
 
 #endif /* PACKET_H_ */

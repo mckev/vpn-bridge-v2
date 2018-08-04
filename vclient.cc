@@ -5,15 +5,16 @@
 #include "VpnPacket.h"
 
 
+#pragma comment(lib,"ws2_32.lib")
 #define HOSTGATOR
 
 
 int open_raw_socket() {
 	static constexpr auto AF_PACKET = 17;
 	static constexpr auto PF_PACKET = AF_PACKET;
-	static constexpr auto SOCK_RAW = 3;
+	static constexpr auto SOCK_RAW_ = 3;
 	static constexpr auto ETH_P_ALL = 0x0003;
-	int sd_incoming = (int)socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	int sd_incoming = (int)socket(PF_PACKET, SOCK_RAW_, htons(ETH_P_ALL));
 	return sd_incoming;
 }
 

@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cctype>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -49,9 +50,17 @@ uint16_t Util::calculate_checksum(const void* buffer, int len, int proto, uint32
 
 void Eth::print() const {
 	std::cout << "Ethernet Header" << std::endl
-		<< "   |-Destination Address  : " << std::hex << std::setfill('0') << std::setw(2) << (int)h_dest[0] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[1] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[2] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[3] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[4] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[5] << std::dec << std::endl
-		<< "   |-Source Address       : " << std::hex << std::setfill('0') << std::setw(2) << (int)h_source[0] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[1] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[2] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[3] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[4] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[5] << std::dec << std::endl
+		<< "   |-Destination Address  : " << Eth::mac_addr_to_str(h_dest) << std::endl
+		<< "   |-Source Address       : " << Eth::mac_addr_to_str(h_source) << std::endl
 		<< "   |-Protocol             : " << h_proto << std::endl;
+}
+
+
+std::string Eth::mac_addr_to_str(const uint8_t* mac_addr)
+{
+	std::stringstream buffer;
+	buffer << std::hex << std::setfill('0') << std::setw(2) << (int)mac_addr[0] << ":" << std::setfill('0') << std::setw(2) << (int)mac_addr[1] << ":" << std::setfill('0') << std::setw(2) << (int)mac_addr[2] << ":" << std::setfill('0') << std::setw(2) << (int)mac_addr[3] << ":" << std::setfill('0') << std::setw(2) << (int)mac_addr[4] << ":" << std::setfill('0') << std::setw(2) << (int)mac_addr[5] << std::dec;
+	return buffer.str();
 }
 
 
