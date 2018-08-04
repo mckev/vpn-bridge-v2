@@ -9,6 +9,14 @@
 #define __LITTLE_ENDIAN_BITFIELD							// intel is using little-endian format
 
 
+// Utility
+
+class Util {
+public:
+	static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint32_t src_addr, uint32_t dest_addr);
+};
+
+
 // Layer 2
 
 class Eth {
@@ -51,7 +59,9 @@ public:
 	uint32_t        daddr;
 
 	void print() const;
+	void print_raw() const;
 	uint16_t checksum() const;
+	static std::string ip_addr_to_str(uint32_t ip_addr);
 };
 
 

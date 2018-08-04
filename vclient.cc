@@ -5,7 +5,7 @@
 #include "VpnPacket.h"
 
 
-// #define HOSTGATOR
+#define HOSTGATOR
 
 
 int open_raw_socket() {
@@ -35,8 +35,7 @@ int main() {
 		struct sockaddr_in  from;
 		socklen_t           fromlen = sizeof(from);
 		size = recvfrom(sd_incoming, (char*)buffer, sizeof(buffer), 0, (struct sockaddr*) &from, &fromlen);
-		std::cout << std::endl
-			<< "Receiving " << size << " bytes" << std::endl;
+		// std::cout << std::endl << "Receiving " << size << " bytes" << std::endl;
 
 		// There are two possible cases:
 		//    1. In HostGator VPS, we receive IP packets (layer 3).
@@ -61,7 +60,6 @@ int main() {
 #endif // HOSTGATOR
 
 		// Layer 3
-		ip->print();
 		{
 			// Verify that our IP checksum algorithm is correct
 			uint16_t original_checksum = ip->check;
@@ -75,7 +73,16 @@ int main() {
 		case Ip::IPPROTO_TCP:
 		{
 			Tcp* tcp = (Tcp*)((uint8_t*)ip + (ip->ihl * 4));
-			tcp->print();
+			// Skip processing SSH packets
+			if (ntohs(tcp->source) == 22 || ntohs(tcp->dest) == 22) {
+				continue;
+			}
+			{
+				ip->print();
+				tcp->print();
+				ip->print_raw();
+				std::cout << std::endl;
+			}
 			{
 				// Verify that our TCP checksum algorithm is correct
 				// How to disable checksum offloading: ethtool -K eth0 rx off tx off   (https://stackoverflow.com/questions/15538786/how-is-tcps-checksum-calculated-when-we-use-tcpdump-to-capture-packets-which-we)
@@ -91,7 +98,12 @@ int main() {
 		case Ip::IPPROTO_UDP:
 		{
 			Udp* udp = (Udp*)((uint8_t*)ip + (ip->ihl * 4));
-			udp->print();
+			{
+				ip->print();
+				udp->print();
+				ip->print_raw();
+				std::cout << std::endl;
+			}
 			{
 				// Verify that our UDP checksum algorithm is correct
 				int len = ntohs(ip->tot_len) - (ip->ihl * 4);
@@ -106,7 +118,12 @@ int main() {
 		case Ip::IPPROTO_ICMP:
 		{
 			Icmp* icmp = (Icmp*)((uint8_t*)ip + (ip->ihl * 4));
-			icmp->print();
+			{
+				ip->print();
+				icmp->print();
+				ip->print_raw();
+				std::cout << std::endl;
+			}
 			{
 				// Verify that our ICMP checksum algorithm is correct
 				int len = ntohs(ip->tot_len) - (ip->ihl * 4);

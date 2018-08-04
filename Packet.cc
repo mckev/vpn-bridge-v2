@@ -1,10 +1,11 @@
 #include <cassert>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include "Packet.h"
 
 
-static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint32_t src_addr, uint32_t dest_addr) {
+uint16_t Util::calculate_checksum(const void* buffer, int len, int proto, uint32_t src_addr, uint32_t dest_addr) {
 	// Ref:
 	// IP: http://www.pdbuchan.com/rawsock/tcp4.c
 	// TCP: http://minirighi.sourceforge.net/html/tcp_8c-source.html
@@ -48,20 +49,8 @@ static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint3
 
 void Eth::print() const {
 	std::cout << "Ethernet Header" << std::endl
-		<< "   |-Destination Address  : " << std::hex
-		<< std::setfill('0') << std::setw(2) << (int)h_dest[0] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_dest[1] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_dest[2] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_dest[3] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_dest[4] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_dest[5] << std::dec << std::endl
-		<< "   |-Source Address       : " << std::hex
-		<< std::setfill('0') << std::setw(2) << (int)h_source[0] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_source[1] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_source[2] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_source[3] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_source[4] << ":"
-		<< std::setfill('0') << std::setw(2) << (int)h_source[5] << std::dec << std::endl
+		<< "   |-Destination Address  : " << std::hex << std::setfill('0') << std::setw(2) << (int)h_dest[0] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[1] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[2] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[3] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[4] << ":" << std::setfill('0') << std::setw(2) << (int)h_dest[5] << std::dec << std::endl
+		<< "   |-Source Address       : " << std::hex << std::setfill('0') << std::setw(2) << (int)h_source[0] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[1] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[2] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[3] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[4] << ":" << std::setfill('0') << std::setw(2) << (int)h_source[5] << std::dec << std::endl
 		<< "   |-Protocol             : " << h_proto << std::endl;
 }
 
@@ -73,20 +62,35 @@ void Ip::print() const {
 	if (ihl != 5) {
 		std::cout << "                            (IHL > 5: IP Options exists)" << std::endl;
 	}
-	std::cout << "   |-Type Of Service      : " << (int)tos << std::endl
+	std::cout
+		<< "   |-Type Of Service      : " << (int)tos << std::endl
 		<< "   |-IP Total Length      : " << ntohs(tot_len) << " bytes (Size of Packet)" << std::endl
 		<< "   |-Identification       : " << ntohs(id) << std::endl
 		<< "   |-TTL                  : " << (int)ttl << std::endl
 		<< "   |-Protocol             : " << (int)protocol << std::endl
 		<< "   |-Checksum             : " << ntohs(check) << std::endl
-		<< "   |-Source IP            : " << (int) *(((uint8_t*)&saddr) + 0) << "."
-		<< (int) *(((uint8_t*)&saddr) + 1) << "."
-		<< (int) *(((uint8_t*)&saddr) + 2) << "."
-		<< (int) *(((uint8_t*)&saddr) + 3) << std::endl
-		<< "   |-Destination IP       : " << (int) *(((uint8_t*)&daddr) + 0) << "."
-		<< (int) *(((uint8_t*)&daddr) + 1) << "."
-		<< (int) *(((uint8_t*)&daddr) + 2) << "."
-		<< (int) *(((uint8_t*)&daddr) + 3) << std::endl;
+		<< "   |-Source IP            : " << Ip::ip_addr_to_str(saddr) << std::endl
+		<< "   |-Destination IP       : " << Ip::ip_addr_to_str(daddr) << std::endl;
+}
+
+void Ip::print_raw() const {
+	uint8_t* pointer = (uint8_t*)this;
+	int len = ntohs(tot_len);
+	int x = 0;
+	std::stringstream cleartext;
+	std::cout << std::hex;
+	for (int i = 0; i < len; i++) {
+		std::cout << std::setfill('0') << std::setw(2) << (int)pointer[i] << " ";
+		cleartext << (std::isprint(pointer[i]) ? (char)pointer[i] : (char)'.');
+		x++;
+		if (x % 16 == 0) {
+			std::cout << "        " << cleartext.str() << std::endl;
+			cleartext.str("");
+			x = 0;
+		}
+	}
+	std::cout << "        " << cleartext.str() << std::endl;
+	std::cout << std::dec;
 }
 
 
@@ -96,7 +100,14 @@ uint16_t Ip::checksum() const {
 
 	// len is usually 20 bytes
 	int len = this->ihl * 4;
-	return calculate_checksum(this, len, 0, 0, 0);
+	return Util::calculate_checksum(this, len, 0, 0, 0);
+}
+
+
+std::string Ip::ip_addr_to_str(uint32_t ip_addr) {
+	std::stringstream buffer;
+	buffer << (int) *(((uint8_t*)&ip_addr) + 0) << "." << (int) *(((uint8_t*)&ip_addr) + 1) << "." << (int) *(((uint8_t*)&ip_addr) + 2) << "." << (int) *(((uint8_t*)&ip_addr) + 3);
+	return buffer.str();
 }
 
 
@@ -110,7 +121,8 @@ void Tcp::print() const {
 	if (doff != 5) {
 		std::cout << "                            (Data offset > 5: TCP Options exists)" << std::endl;
 	}
-	std::cout << "   |-Reserved             : " << res1 << std::endl
+	std::cout
+		<< "   |-Reserved             : " << res1 << std::endl
 		<< "   |-CWR Flag             : " << cwr << std::endl
 		<< "   |-ECN Flag             : " << ece << std::endl
 		<< "   |-Urgent Flag          : " << urg << std::endl
@@ -129,7 +141,7 @@ uint16_t Tcp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 	// Set tcp->check to 0 before calling this function
 	assert(this->check == 0);
 
-	return calculate_checksum(this, len, Ip::IPPROTO_TCP, src_addr, dest_addr);
+	return Util::calculate_checksum(this, len, Ip::IPPROTO_TCP, src_addr, dest_addr);
 }
 
 
@@ -146,7 +158,7 @@ uint16_t Udp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 	// Set udp->check to 0 before calling this function
 	assert(this->check == 0);
 
-	return calculate_checksum(this, len, Ip::IPPROTO_UDP, src_addr, dest_addr);
+	return Util::calculate_checksum(this, len, Ip::IPPROTO_UDP, src_addr, dest_addr);
 }
 
 
@@ -159,7 +171,8 @@ void Icmp::print() const {
 	else if (type == Icmp::ICMP_ECHOREPLY) {
 		std::cout << "                            (ICMP Echo Reply)" << std::endl;
 	}
-	std::cout << "   |-Code                 : " << (int)code << std::endl
+	std::cout
+		<< "   |-Code                 : " << (int)code << std::endl
 		<< "   |-Checksum             : " << ntohs(check) << std::endl;
 }
 
@@ -168,5 +181,5 @@ uint16_t Icmp::checksum(int len) const {
 	// Set icmp->check to 0 before calling this function
 	assert(this->check == 0);
 
-	return calculate_checksum(this, len, 0, 0, 0);
+	return Util::calculate_checksum(this, len, 0, 0, 0);
 }
