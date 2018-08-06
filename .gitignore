@@ -1,2 +1,9 @@
-Debug/
+# Visual Studio
 .vs/
+Debug/
+packages/
+packages.config
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
