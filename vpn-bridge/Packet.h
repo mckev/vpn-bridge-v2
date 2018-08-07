@@ -32,6 +32,7 @@ public:
 	uint16_t        h_proto;                                // packet type id
 
 	void print() const;
+	void print_raw() const;
 	static std::string mac_addr_to_str(const uint8_t* mac_addr);
 };
 

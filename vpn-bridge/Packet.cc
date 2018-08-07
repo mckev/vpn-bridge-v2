@@ -52,7 +52,18 @@ void Eth::print() const {
 	std::cout << "Ethernet Header" << std::endl
 		<< "   |-Destination Address  : " << Eth::mac_addr_to_str(h_dest) << std::endl
 		<< "   |-Source Address       : " << Eth::mac_addr_to_str(h_source) << std::endl
-		<< "   |-Protocol             : " << h_proto << std::endl;
+		<< "   |-Protocol             : " << ntohs(h_proto) << std::endl;
+}
+
+
+void Eth::print_raw() const {
+	uint8_t* pointer = (uint8_t*)this;
+	std::cout << std::hex;
+	for (int i = 0; i < (int)sizeof(Eth); i++) {
+		std::cout << std::setfill('0') << std::setw(2) << (int)pointer[i] << " ";
+	}
+	std::cout << std::endl;
+	std::cout << std::dec;
 }
 
 

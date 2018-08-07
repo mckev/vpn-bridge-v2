@@ -2,7 +2,13 @@
 #include "Packet.h"
 
 
-TEST(PacketTest, CanConvertUint32IntoIpAddress) {
+static uint8_t packet[20] = {
+	0x45, 0x00, 0x00, 0x28, 0x95, 0x88, 0x40, 0x00, 0x35, 0x11, 0x74, 0x98, 0xdf, 0xe5, 0xce, 0x87,
+	0xc6, 0x9a, 0xc6, 0x9c
+};
+
+
+TEST(PacketTestIp, ConvertIpAddressFromUint32IntoStr) {
 	uint32_t ip_addr;
 	ip_addr = 0x87cee5df;
 	EXPECT_EQ(std::string("223.229.206.135"), Ip::ip_addr_to_str(ip_addr));
@@ -11,12 +17,8 @@ TEST(PacketTest, CanConvertUint32IntoIpAddress) {
 }
 
 
-TEST(PacketTest, CanParseIpPacketCorrectly) {
-	uint8_t buffer[20] = {
-		0x45, 0x00, 0x00, 0x28, 0x95, 0x88, 0x40, 0x00, 0x35, 0x11, 0x74, 0x98, 0xdf, 0xe5, 0xce, 0x87,
-		0xc6, 0x9a, 0xc6, 0x9c
-	};
-	Ip* ip = (Ip*)buffer;
+TEST(PacketTestIp, ParseIpPacketCorrectly) {
+	Ip* ip = (Ip*)packet;
 	EXPECT_EQ(4, ip->version);
 	EXPECT_EQ(20, ip->ihl * 4);				// length of ip header
 	EXPECT_EQ(40, ntohs(ip->tot_len));		// total length (length of ip header + payload)
@@ -28,12 +30,8 @@ TEST(PacketTest, CanParseIpPacketCorrectly) {
 }
 
 
-TEST(PacketTest, CanCalculateIpChecksumCorrectly) {
-	uint8_t buffer[20] = {
-		0x45, 0x00, 0x00, 0x28, 0x95, 0x88, 0x40, 0x00, 0x35, 0x11, 0x74, 0x98, 0xdf, 0xe5, 0xce, 0x87,
-		0xc6, 0x9a, 0xc6, 0x9c
-	};
-	Ip* ip = (Ip*)buffer;
+TEST(PacketTestIp, CalculateIpChecksumCorrectly) {
+	Ip* ip = (Ip*)packet;
 	ip->check = 0;
 	EXPECT_EQ(29848, ntohs(ip->checksum()));
 }

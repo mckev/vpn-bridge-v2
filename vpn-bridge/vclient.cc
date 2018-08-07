@@ -51,6 +51,7 @@ int main() {
 			// Layer 2: Ethernet packet
 			Eth* eth = (Eth*)buffer;
 			eth->print();
+			eth->print_raw();
 			if (ntohs(eth->h_proto) != Eth::ETH_P_IP) continue;
 
 			// Layer 3: IP packet
