@@ -32,6 +32,8 @@ TEST(PacketTestIp, ParseIpPacketCorrectly) {
 
 TEST(PacketTestIp, CalculateIpChecksumCorrectly) {
 	Ip* ip = (Ip*)packet;
+	uint16_t original_checksum = ip->check;
 	ip->check = 0;
-	EXPECT_EQ(29848, ntohs(ip->checksum()));
+	EXPECT_EQ(original_checksum, ip->checksum());
+	ip->check = original_checksum;
 }
