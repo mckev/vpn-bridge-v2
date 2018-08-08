@@ -88,7 +88,7 @@ void Ip::print() const {
 		<< "   |-Identification       : " << ntohs(id) << std::endl
 		<< "   |-TTL                  : " << (int)ttl << std::endl
 		<< "   |-Protocol             : " << (int)protocol << std::endl
-		<< "   |-Checksum             : " << ntohs(check) << std::endl
+		<< "   |-Checksum             : " << check << std::endl
 		<< "   |-Source IP            : " << Ip::ip_addr_to_str(saddr) << std::endl
 		<< "   |-Destination IP       : " << Ip::ip_addr_to_str(daddr) << std::endl;
 }
@@ -152,7 +152,7 @@ void Tcp::print() const {
 		<< "   |-Synchronise Flag     : " << syn << std::endl
 		<< "   |-Finish Flag          : " << fin << std::endl
 		<< "   |-Window               : " << ntohs(window) << std::endl
-		<< "   |-Checksum             : " << ntohs(check) << std::endl
+		<< "   |-Checksum             : " << check << std::endl
 		<< "   |-Urgent Pointer       : " << urg_ptr << std::endl;
 }
 
@@ -170,7 +170,7 @@ void Udp::print() const {
 		<< "   |-Source Port          : " << ntohs(source) << std::endl
 		<< "   |-Destination Port     : " << ntohs(dest) << std::endl
 		<< "   |-UDP Length           : " << ntohs(len) << std::endl
-		<< "   |-UDP Checksum         : " << ntohs(check) << std::endl;
+		<< "   |-UDP Checksum         : " << check << std::endl;
 }
 
 

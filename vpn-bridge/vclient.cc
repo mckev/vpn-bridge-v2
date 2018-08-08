@@ -107,7 +107,8 @@ int main() {
 			}
 			{
 				// Verify that our UDP checksum algorithm is correct
-				int len = ntohs(ip->tot_len) - (ip->ihl * 4);
+				int len = ntohs(udp->len);
+				assert(len == ntohs(ip->tot_len) - (ip->ihl * 4));
 				uint16_t original_checksum = udp->check;
 				udp->check = 0;
 				udp->check = udp->checksum(len, ip->saddr, ip->daddr);
