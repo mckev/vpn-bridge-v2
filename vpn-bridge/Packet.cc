@@ -54,7 +54,7 @@ int Eth::header_len() const {
 
 
 uint8_t* Eth::data() const {
-	return (uint8_t*)this + sizeof(Eth);
+	return (uint8_t*)this + header_len();
 }
 
 
@@ -69,7 +69,7 @@ void Eth::print() const {
 void Eth::print_raw() const {
 	uint8_t* pointer = (uint8_t*)this;
 	std::cout << std::hex;
-	for (int i = 0; i < (int)sizeof(Eth); i++) {
+	for (int i = 0; i < header_len(); i++) {
 		std::cout << std::setfill('0') << std::setw(2) << (int)pointer[i] << " ";
 	}
 	std::cout << std::endl;

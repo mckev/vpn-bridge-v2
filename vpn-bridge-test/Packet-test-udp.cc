@@ -16,7 +16,7 @@ TEST(PacketTestUdp, ParseUdpPacketCorrectly) {
 	EXPECT_EQ(3000, ntohs(udp->dest));
 	EXPECT_EQ(21, udp->total_len());
 	int udp_len_from_ip = ip->total_len() - ip->header_len();
-	EXPECT_EQ(21, udp_len_from_ip);
+	EXPECT_EQ(udp->total_len(), udp_len_from_ip);
 }
 
 
@@ -32,8 +32,9 @@ TEST(PacketTestUdp, VerifyPayload) {
 TEST(PacketTestUdp, CalculateUdpChecksumCorrectly) {
 	Ip* ip = (Ip*)packet;
 	Udp* udp = (Udp*)ip->data();
+	int len = ip->total_len() - ip->header_len();
 	uint16_t original_checksum = udp->check;
 	udp->check = 0;
-	udp->check = udp->checksum(udp->total_len(), ip->saddr, ip->daddr);
+	udp->check = udp->checksum(len, ip->saddr, ip->daddr);
 	EXPECT_EQ(original_checksum, udp->check);
 }

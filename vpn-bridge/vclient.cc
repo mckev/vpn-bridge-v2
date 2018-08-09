@@ -107,10 +107,10 @@ int main() {
 			}
 			{
 				// Verify that our UDP checksum algorithm is correct
-				assert(udp->total_len() == ip->total_len() - ip->header_len());
+				int len = ip->total_len() - ip->header_len();
 				uint16_t original_checksum = udp->check;
 				udp->check = 0;
-				udp->check = udp->checksum(udp->total_len(), ip->saddr, ip->daddr);
+				udp->check = udp->checksum(len, ip->saddr, ip->daddr);
 				assert(udp->check == original_checksum);
 			}
 		}
