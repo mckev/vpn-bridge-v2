@@ -48,6 +48,16 @@ uint16_t Util::calculate_checksum(const void* buffer, int len, int proto, uint32
 }
 
 
+int Eth::header_len() const {
+	return sizeof(Eth);
+}
+
+
+uint8_t* Eth::data() const {
+	return (uint8_t*)this + sizeof(Eth);
+}
+
+
 void Eth::print() const {
 	std::cout << "Ethernet Header" << std::endl
 		<< "   |-Destination Address  : " << Eth::mac_addr_to_str(h_dest) << std::endl
@@ -75,6 +85,23 @@ std::string Eth::mac_addr_to_str(const uint8_t* mac_addr)
 }
 
 
+int Ip::header_len() const {
+	// ip header length is usually 20 bytes
+	return ihl * 4;
+}
+
+
+int Ip::total_len() const {
+	// size of packet
+	return ntohs(tot_len);
+}
+
+
+uint8_t* Ip::data() const {
+	return (uint8_t*)this + header_len();
+}
+
+
 void Ip::print() const {
 	std::cout << "IP Header" << std::endl
 		<< "   |-IP Version           : " << (int)version << std::endl
@@ -95,11 +122,10 @@ void Ip::print() const {
 
 void Ip::print_raw() const {
 	uint8_t* pointer = (uint8_t*)this;
-	int len = ntohs(tot_len);
 	int x = 0;
 	std::stringstream cleartext;
 	std::cout << std::hex;
-	for (int i = 0; i < len; i++) {
+	for (int i = 0; i < total_len(); i++) {
 		std::cout << std::setfill('0') << std::setw(2) << (int)pointer[i] << " ";
 		cleartext << (std::isprint(pointer[i]) ? (char)pointer[i] : (char)'.');
 		x++;
@@ -118,9 +144,7 @@ uint16_t Ip::checksum() const {
 	// Set ip->check to 0 before calling this function
 	assert(this->check == 0);
 
-	// len is usually 20 bytes
-	int len = this->ihl * 4;
-	return Util::calculate_checksum(this, len, 0, 0, 0);
+	return Util::calculate_checksum(this, header_len(), 0, 0, 0);
 }
 
 
@@ -162,6 +186,21 @@ uint16_t Tcp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 	assert(this->check == 0);
 
 	return Util::calculate_checksum(this, len, Ip::IPPROTO_TCP, src_addr, dest_addr);
+}
+
+
+int Udp::header_len() const {
+	return sizeof(Udp);
+}
+
+
+int Udp::total_len() const {
+	return ntohs(len);
+}
+
+
+uint8_t* Udp::data() const {
+	return (uint8_t*)this + header_len();
 }
 
 

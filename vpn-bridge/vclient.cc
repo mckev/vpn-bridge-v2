@@ -55,8 +55,8 @@ int main() {
 			if (ntohs(eth->h_proto) != Eth::ETH_P_IP) continue;
 
 			// Layer 3: IP packet
-			ip = (Ip*)((uint8_t*)buffer + sizeof(Eth));
-			size -= sizeof(Eth);
+			ip = (Ip*)eth->data();
+			size -= eth->header_len();
 		}
 #endif // HOSTGATOR
 
@@ -73,7 +73,7 @@ int main() {
 		switch (ip->protocol) {
 		case Ip::IPPROTO_TCP:
 		{
-			Tcp* tcp = (Tcp*)((uint8_t*)ip + (ip->ihl * 4));
+			Tcp* tcp = (Tcp*)ip->data();
 			// Skip processing SSH packets
 			if (ntohs(tcp->source) == 22 || ntohs(tcp->dest) == 22) {
 				continue;
@@ -87,7 +87,7 @@ int main() {
 			{
 				// Verify that our TCP checksum algorithm is correct
 				// How to disable checksum offloading: ethtool -K eth0 rx off tx off   (https://stackoverflow.com/questions/15538786/how-is-tcps-checksum-calculated-when-we-use-tcpdump-to-capture-packets-which-we)
-				int len = ntohs(ip->tot_len) - (ip->ihl * 4);
+				int len = ip->total_len() - ip->header_len();
 				uint16_t original_checksum = tcp->check;
 				tcp->check = 0;
 				tcp->check = tcp->checksum(len, ip->saddr, ip->daddr);
@@ -98,7 +98,7 @@ int main() {
 
 		case Ip::IPPROTO_UDP:
 		{
-			Udp* udp = (Udp*)((uint8_t*)ip + (ip->ihl * 4));
+			Udp* udp = (Udp*)ip->data();
 			{
 				ip->print();
 				udp->print();
@@ -107,11 +107,10 @@ int main() {
 			}
 			{
 				// Verify that our UDP checksum algorithm is correct
-				int len = ntohs(udp->len);
-				assert(len == ntohs(ip->tot_len) - (ip->ihl * 4));
+				assert(udp->total_len() == ip->total_len() - ip->header_len());
 				uint16_t original_checksum = udp->check;
 				udp->check = 0;
-				udp->check = udp->checksum(len, ip->saddr, ip->daddr);
+				udp->check = udp->checksum(udp->total_len(), ip->saddr, ip->daddr);
 				assert(udp->check == original_checksum);
 			}
 		}
@@ -119,7 +118,7 @@ int main() {
 
 		case Ip::IPPROTO_ICMP:
 		{
-			Icmp* icmp = (Icmp*)((uint8_t*)ip + (ip->ihl * 4));
+			Icmp* icmp = (Icmp*)ip->data();
 			{
 				ip->print();
 				icmp->print();
@@ -128,7 +127,7 @@ int main() {
 			}
 			{
 				// Verify that our ICMP checksum algorithm is correct
-				int len = ntohs(ip->tot_len) - (ip->ihl * 4);
+				int len = ip->total_len() - ip->header_len();
 				uint16_t original_checksum = icmp->check;
 				icmp->check = 0;
 				icmp->check = icmp->checksum(len);

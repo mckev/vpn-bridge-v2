@@ -20,8 +20,8 @@ TEST(PacketTestIp, ConvertIpAddressFromUint32IntoStr) {
 TEST(PacketTestIp, ParseIpPacketCorrectly) {
 	Ip* ip = (Ip*)packet;
 	EXPECT_EQ(4, ip->version);
-	EXPECT_EQ(20, ip->ihl * 4);				// length of ip header
-	EXPECT_EQ(40, ntohs(ip->tot_len));		// total length (length of ip header + payload)
+	EXPECT_EQ(20, ip->header_len());
+	EXPECT_EQ(40, ip->total_len());
 	EXPECT_EQ(38280, ntohs(ip->id));
 	EXPECT_EQ(53, ip->ttl);
 	EXPECT_EQ(Ip::IPPROTO_UDP, ip->protocol);
@@ -34,6 +34,6 @@ TEST(PacketTestIp, CalculateIpChecksumCorrectly) {
 	Ip* ip = (Ip*)packet;
 	uint16_t original_checksum = ip->check;
 	ip->check = 0;
-	EXPECT_EQ(original_checksum, ip->checksum());
-	ip->check = original_checksum;
+	ip->check = ip->checksum();
+	EXPECT_EQ(original_checksum, ip->check);
 }

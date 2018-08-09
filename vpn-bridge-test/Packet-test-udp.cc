@@ -11,32 +11,29 @@ static uint8_t packet[40] = {
 
 TEST(PacketTestUdp, ParseUdpPacketCorrectly) {
 	Ip* ip = (Ip*)packet;
-	Udp* udp = (Udp*)((uint8_t*)ip + (ip->ihl * 4));
+	Udp* udp = (Udp*)ip->data();
 	EXPECT_EQ(28990, ntohs(udp->source));
 	EXPECT_EQ(3000, ntohs(udp->dest));
-	EXPECT_EQ(20, ntohs(udp->len));
-	int udp_len_from_ip = ntohs(ip->tot_len) - (ip->ihl * 4);
+	EXPECT_EQ(20, udp->total_len());
+	int udp_len_from_ip = ip->total_len() - ip->header_len();
 	EXPECT_EQ(20, udp_len_from_ip);
 }
 
 
 TEST(PacketTestUdp, VerifyPayload) {
 	Ip* ip = (Ip*)packet;
-	Udp* udp = (Udp*)((uint8_t*)ip + (ip->ihl * 4));
-	int udp_len = ntohs(udp->len);
-	const uint8_t* payload = (uint8_t*)((uint8_t*)udp + sizeof(Udp));
-	int payload_len = udp_len - sizeof(Udp);
-	std::string payload_str = std::string((const char*)payload, payload_len);
+	Udp* udp = (Udp*)ip->data();
+	int payload_len = udp->total_len() - udp->header_len();
+	std::string payload_str = std::string((const char*)udp->data(), payload_len);
 	EXPECT_EQ(std::string("Hello, world"), payload_str);
 }
 
 
 TEST(PacketTestUdp, CalculateUdpChecksumCorrectly) {
 	Ip* ip = (Ip*)packet;
-	Udp* udp = (Udp*)((uint8_t*)ip + (ip->ihl * 4));
-	int udp_len = ntohs(udp->len);
+	Udp* udp = (Udp*)ip->data();
 	uint16_t original_checksum = udp->check;
 	udp->check = 0;
-	EXPECT_EQ(original_checksum, udp->checksum(udp_len, ip->saddr, ip->daddr));
-	udp->check = original_checksum;
+	udp->check = udp->checksum(udp->total_len(), ip->saddr, ip->daddr);
+	EXPECT_EQ(original_checksum, udp->check);
 }

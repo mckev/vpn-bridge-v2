@@ -31,6 +31,8 @@ public:
 	uint8_t         h_source[ETH_ALEN];                     // source ethernet address
 	uint16_t        h_proto;                                // packet type id
 
+	int header_len() const;
+	uint8_t* data() const;
 	void print() const;
 	void print_raw() const;
 	static std::string mac_addr_to_str(const uint8_t* mac_addr);
@@ -63,6 +65,9 @@ public:
 	uint32_t        saddr;
 	uint32_t        daddr;
 
+	int header_len() const;
+	int total_len() const;
+	uint8_t* data() const;
 	void print() const;
 	void print_raw() const;
 	uint16_t checksum() const;
@@ -99,6 +104,9 @@ public:
 	uint16_t        len;
 	uint16_t        check;
 
+	int header_len() const;
+	int total_len() const;
+	uint8_t* data() const;
 	void print() const;
 	uint16_t checksum(int len, uint32_t src_addr, uint32_t dest_addr) const;
 };
