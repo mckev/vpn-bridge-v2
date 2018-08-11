@@ -13,7 +13,7 @@ int open_raw_socket() {
 	static constexpr auto PF_PACKET = AF_PACKET;
 	static constexpr auto SOCK_RAW_ = 3;
 	static constexpr auto ETH_P_ALL = 0x0003;
-	int sd_incoming = (int)socket(PF_PACKET, SOCK_RAW_, htons(ETH_P_ALL));
+	int sd_incoming = socket(PF_PACKET, SOCK_RAW_, htons(ETH_P_ALL));
 	return sd_incoming;
 }
 
@@ -34,7 +34,7 @@ int main() {
 		socklen_t size;
 		struct sockaddr_in  from;
 		socklen_t           fromlen = sizeof(from);
-		size = recvfrom(sd_incoming, (char*)buffer, sizeof(buffer), 0, (struct sockaddr*) &from, &fromlen);
+		size = recvfrom(sd_incoming, reinterpret_cast<char*>(buffer), sizeof(buffer), 0, reinterpret_cast<struct sockaddr*>(&from), &fromlen);
 		// std::cout << std::endl << "Receiving " << size << " bytes" << std::endl;
 
 		// There are two possible cases:
@@ -45,17 +45,17 @@ int main() {
 
 #ifdef HOSTGATOR
 		// Layer 3: IP packet
-		ip = (Ip*)buffer;
+		ip = reinterpret_cast<Ip*>(buffer);
 #else
 		{
 			// Layer 2: Ethernet packet
-			Eth* eth = (Eth*)buffer;
-			eth->print();
-			eth->print_raw();
+			Eth* eth = reinterpret_cast<Eth*>(buffer);
+			// eth->print();
+			// eth->print_raw();
 			if (ntohs(eth->h_proto) != Eth::ETH_P_IP) continue;
 
 			// Layer 3: IP packet
-			ip = (Ip*)eth->data();
+			ip = reinterpret_cast<Ip*>(eth->data());
 			size -= eth->header_len();
 		}
 #endif // HOSTGATOR
@@ -73,7 +73,7 @@ int main() {
 		switch (ip->protocol) {
 		case Ip::IPPROTO_TCP:
 		{
-			Tcp* tcp = (Tcp*)ip->data();
+			Tcp* tcp = reinterpret_cast<Tcp*>(ip->data());
 			// Skip processing SSH packets
 			if (ntohs(tcp->source) == 22 || ntohs(tcp->dest) == 22) {
 				continue;
@@ -98,7 +98,7 @@ int main() {
 
 		case Ip::IPPROTO_UDP:
 		{
-			Udp* udp = (Udp*)ip->data();
+			Udp* udp = reinterpret_cast<Udp*>(ip->data());
 			{
 				ip->print();
 				udp->print();
@@ -118,7 +118,7 @@ int main() {
 
 		case Ip::IPPROTO_ICMP:
 		{
-			Icmp* icmp = (Icmp*)ip->data();
+			Icmp* icmp = reinterpret_cast<Icmp*>(ip->data());
 			{
 				ip->print();
 				icmp->print();

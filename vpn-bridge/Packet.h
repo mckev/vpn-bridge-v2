@@ -32,7 +32,7 @@ public:
 	uint16_t        h_proto;                                // packet type id
 
 	int header_len() const;
-	uint8_t* data() const;
+	uint8_t* data();
 	void print() const;
 	void print_raw() const;
 	static std::string mac_addr_to_str(const uint8_t* mac_addr);
@@ -67,7 +67,7 @@ public:
 
 	int header_len() const;
 	int total_len() const;
-	uint8_t* data() const;
+	uint8_t* data();
 	void print() const;
 	void print_raw() const;
 	uint16_t checksum() const;
@@ -106,7 +106,7 @@ public:
 
 	int header_len() const;
 	int total_len() const;
-	uint8_t* data() const;
+	uint8_t* data();
 	void print() const;
 	uint16_t checksum(int len, uint32_t src_addr, uint32_t dest_addr) const;
 };

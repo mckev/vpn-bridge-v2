@@ -23,7 +23,7 @@ uint16_t Util::calculate_checksum(const void* buffer, int len, int proto, uint32
 		nleft -= 2;
 	}
 	if (nleft == 1) {
-		sum += *((uint8_t*)w);
+		sum += *(reinterpret_cast<const uint8_t*>(w));
 	}
 
 	// Add the pseudo headers
@@ -53,8 +53,8 @@ int Eth::header_len() const {
 }
 
 
-uint8_t* Eth::data() const {
-	return (uint8_t*)this + header_len();
+uint8_t* Eth::data() {
+	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
 
 
@@ -67,7 +67,7 @@ void Eth::print() const {
 
 
 void Eth::print_raw() const {
-	uint8_t* pointer = (uint8_t*)this;
+	const uint8_t* pointer = reinterpret_cast<const uint8_t*>(this);
 	std::cout << std::hex;
 	for (int i = 0; i < header_len(); i++) {
 		std::cout << std::setfill('0') << std::setw(2) << (int)pointer[i] << " ";
@@ -97,8 +97,8 @@ int Ip::total_len() const {
 }
 
 
-uint8_t* Ip::data() const {
-	return (uint8_t*)this + header_len();
+uint8_t* Ip::data() {
+	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
 
 
@@ -121,7 +121,7 @@ void Ip::print() const {
 }
 
 void Ip::print_raw() const {
-	uint8_t* pointer = (uint8_t*)this;
+	const uint8_t* pointer = reinterpret_cast<const uint8_t*>(this);
 	int x = 0;
 	std::stringstream cleartext;
 	std::cout << std::hex;
@@ -149,8 +149,9 @@ uint16_t Ip::checksum() const {
 
 
 std::string Ip::ip_addr_to_str(uint32_t ip_addr) {
+	const uint8_t* p = reinterpret_cast<uint8_t*>(&ip_addr);
 	std::stringstream buffer;
-	buffer << (int) *(((uint8_t*)&ip_addr) + 0) << "." << (int) *(((uint8_t*)&ip_addr) + 1) << "." << (int) *(((uint8_t*)&ip_addr) + 2) << "." << (int) *(((uint8_t*)&ip_addr) + 3);
+	buffer << (int)p[0] << "." << (int)p[1] << "." << (int)p[2] << "." << (int)p[3];
 	return buffer.str();
 }
 
@@ -199,8 +200,8 @@ int Udp::total_len() const {
 }
 
 
-uint8_t* Udp::data() const {
-	return (uint8_t*)this + header_len();
+uint8_t* Udp::data() {
+	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
 
 
