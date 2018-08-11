@@ -48,6 +48,25 @@ uint16_t Util::calculate_checksum(const void* buffer, int len, int proto, uint32
 }
 
 
+void Util::print_raw(const uint8_t* buffer, int len) {
+	int x = 0;
+	std::stringstream cleartext;
+	std::cout << std::hex;
+	for (int i = 0; i < len; i++) {
+		std::cout << std::setfill('0') << std::setw(2) << (int)buffer[i] << " ";
+		cleartext << (std::isprint(buffer[i]) ? (char)buffer[i] : (char)'.');
+		x++;
+		if (x % 16 == 0) {
+			std::cout << "        " << cleartext.str() << std::endl;
+			cleartext.str("");
+			x = 0;
+		}
+	}
+	std::cout << "        " << cleartext.str() << std::endl;
+	std::cout << std::dec;
+}
+
+
 int Eth::header_len() const {
 	return sizeof(Eth);
 }
@@ -67,13 +86,7 @@ void Eth::print() const {
 
 
 void Eth::print_raw() const {
-	const uint8_t* pointer = reinterpret_cast<const uint8_t*>(this);
-	std::cout << std::hex;
-	for (int i = 0; i < header_len(); i++) {
-		std::cout << std::setfill('0') << std::setw(2) << (int)pointer[i] << " ";
-	}
-	std::cout << std::endl;
-	std::cout << std::dec;
+	Util::print_raw(reinterpret_cast<const uint8_t*>(this), header_len());
 }
 
 
@@ -121,22 +134,7 @@ void Ip::print() const {
 }
 
 void Ip::print_raw() const {
-	const uint8_t* pointer = reinterpret_cast<const uint8_t*>(this);
-	int x = 0;
-	std::stringstream cleartext;
-	std::cout << std::hex;
-	for (int i = 0; i < total_len(); i++) {
-		std::cout << std::setfill('0') << std::setw(2) << (int)pointer[i] << " ";
-		cleartext << (std::isprint(pointer[i]) ? (char)pointer[i] : (char)'.');
-		x++;
-		if (x % 16 == 0) {
-			std::cout << "        " << cleartext.str() << std::endl;
-			cleartext.str("");
-			x = 0;
-		}
-	}
-	std::cout << "        " << cleartext.str() << std::endl;
-	std::cout << std::dec;
+	Util::print_raw(reinterpret_cast<const uint8_t*>(this), total_len());
 }
 
 

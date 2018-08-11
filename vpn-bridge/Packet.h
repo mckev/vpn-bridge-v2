@@ -17,6 +17,7 @@
 class Util {
 public:
 	static uint16_t calculate_checksum(const void* buffer, int len, int proto, uint32_t src_addr, uint32_t dest_addr);
+	static void print_raw(const uint8_t* buffer, int len);
 };
 
 

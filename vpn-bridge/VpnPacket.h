@@ -20,7 +20,7 @@ public:
 
 	VpnPacket(uint8_t msg_type, uint16_t msg_size);
 	VpnPacket(uint8_t msg_type);                            // message size is unknown (yet) during constructor
-	void print() const;
+	void print_raw() const;
 };
 
 

@@ -5,7 +5,7 @@
 #include "VpnPacket.h"
 
 
-#define HOSTGATOR
+// #define HOSTGATOR
 
 
 int open_raw_socket() {
@@ -20,7 +20,7 @@ int open_raw_socket() {
 
 int main() {
 	VpnPacketHello hello_packet("Hello, world!");
-	hello_packet.print();
+	hello_packet.print_raw();
 
 	int sd_incoming = open_raw_socket();
 	if (sd_incoming == -1) {

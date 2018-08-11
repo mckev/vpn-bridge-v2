@@ -1,5 +1,6 @@
 #include <cstring>                                          // strncat
 #include <iostream>
+#include "Packet.h"
 #include "VpnPacket.h"
 
 
@@ -13,11 +14,8 @@ VpnPacket::VpnPacket(uint8_t msg_type)
 }
 
 
-void VpnPacket::print() const {
-	for (unsigned int i = 0; i < sizeof(VpnPacket) + msg_size; i++) {
-		char ch = ((char*)this)[i];
-		std::cout << i << ": " << (isprint(ch) ? ch : ' ') << " " << (int)ch << std::endl;
-	}
+void VpnPacket::print_raw() const {
+	Util::print_raw(reinterpret_cast<const uint8_t*>(this), sizeof(VpnPacket) + msg_size);
 }
 
 
