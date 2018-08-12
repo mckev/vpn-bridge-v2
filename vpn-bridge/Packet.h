@@ -5,7 +5,6 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #endif
-#include <cstdint>
 
 
 #pragma pack(1)                                             // disable alignment of struct members

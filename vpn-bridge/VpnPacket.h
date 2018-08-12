@@ -2,7 +2,6 @@
 #define VPNPACKET_H_
 
 
-#include <cstdint>
 #include <string>
 
 
@@ -19,7 +18,10 @@ public:
 	static constexpr auto MSG_TYPE_HELLO = 10;
 
 	VpnPacket(uint8_t msg_type, uint16_t msg_size);
-	VpnPacket(uint8_t msg_type);                            // message size is unknown (yet) during constructor
+	VpnPacket(uint8_t msg_type);                            // case message size is unknown (yet) during constructor
+
+	int header_len() const;
+	int total_len() const;
 	void print_raw() const;
 };
 
