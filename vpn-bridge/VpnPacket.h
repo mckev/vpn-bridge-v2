@@ -15,7 +15,9 @@ public:
 	uint16_t        msg_size;
 
 	static constexpr auto MAGIC = 0x484B;
-	static constexpr auto MSG_TYPE_HELLO = 10;
+	static enum MsgType {
+		HELLO = 10
+	};
 
 	VpnPacket(uint8_t msg_type, uint16_t msg_size);
 	VpnPacket(uint8_t msg_type);                            // case message size is unknown (yet) during constructor

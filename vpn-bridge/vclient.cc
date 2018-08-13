@@ -19,9 +19,6 @@ int open_raw_socket() {
 
 
 int main() {
-	VpnPacketHello hello_packet("Hello, world!");
-	hello_packet.print_raw();
-
 	int sd_incoming = open_raw_socket();
 	if (sd_incoming == -1) {
 		std::cerr << "Error while opening raw socket: socket() error " << errno << ": " << strerror(errno) << std::endl;

@@ -29,7 +29,7 @@ void VpnPacket::print_raw() const {
 }
 
 
-VpnPacketHello::VpnPacketHello(const std::string& message) : VpnPacket(MSG_TYPE_HELLO) {
+VpnPacketHello::VpnPacketHello(const std::string& message) : VpnPacket(MsgType::HELLO) {
 	strncpy(this->message, message.c_str(), sizeof(this->message));
 	msg_size = strnlen(this->message, sizeof(this->message));
 }
