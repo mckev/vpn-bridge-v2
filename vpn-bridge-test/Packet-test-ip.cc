@@ -7,14 +7,12 @@ static uint8_t packet[20] = {
 	0xc6, 0x9a, 0xc6, 0x9c
 };
 
-
 TEST(PacketTestIp, ConvertIpAddressFromUint32IntoStr) {
 	uint32_t ip_addr1 = 0xb75fc96a;
 	EXPECT_EQ(std::string("106.201.95.183"), Ip::ip_addr_to_str(ip_addr1));
 	uint32_t ip_addr2 = 0x9cc69ac6;
 	EXPECT_EQ(std::string("198.154.198.156"), Ip::ip_addr_to_str(ip_addr2));
 }
-
 
 TEST(PacketTestIp, ParseIpPacketCorrectly) {
 	Ip* ip = (Ip*)packet;
@@ -27,7 +25,6 @@ TEST(PacketTestIp, ParseIpPacketCorrectly) {
 	EXPECT_EQ(std::string("106.201.95.183"), Ip::ip_addr_to_str(ip->saddr));
 	EXPECT_EQ(std::string("198.154.198.156"), Ip::ip_addr_to_str(ip->daddr));
 }
-
 
 TEST(PacketTestIp, CalculateIpChecksumCorrectly) {
 	Ip* ip = (Ip*)packet;

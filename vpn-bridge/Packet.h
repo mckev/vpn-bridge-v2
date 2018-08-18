@@ -11,7 +11,7 @@
 #define __LITTLE_ENDIAN_BITFIELD							// intel is using little-endian format
 
 
-// Utility
+// --- UTILITY ---
 
 class Util {
 public:
@@ -20,7 +20,7 @@ public:
 };
 
 
-// Layer 2
+// --- LAYER 2: ETHERNET ---
 
 class Eth {
 public:
@@ -39,7 +39,7 @@ public:
 };
 
 
-// Layer 3
+// --- LAYER 3: IP ---
 
 class Ip {
 public:
@@ -75,7 +75,7 @@ public:
 };
 
 
-// Layer 4
+// --- LAYER 4 ---
 
 class Tcp {
 public:
@@ -134,6 +134,8 @@ public:
 	void print() const;
 	uint16_t checksum(int len) const;
 };
+
+
 
 
 // Socket definitions

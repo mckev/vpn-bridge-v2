@@ -6,6 +6,8 @@
 #include "Packet.h"
 
 
+// --- UTILITY ---
+
 uint16_t Util::calculate_checksum(const void* buffer, int len, int proto, uint32_t src_addr, uint32_t dest_addr) {
 	// Ref:
 	// IP: http://www.pdbuchan.com/rawsock/tcp4.c
@@ -47,7 +49,6 @@ uint16_t Util::calculate_checksum(const void* buffer, int len, int proto, uint32
 	return static_cast<uint16_t>(~sum);
 }
 
-
 void Util::print_raw(const uint8_t* buffer, int len) {
 	int x = 0;
 	std::stringstream cleartext;
@@ -67,15 +68,17 @@ void Util::print_raw(const uint8_t* buffer, int len) {
 }
 
 
+
+
+// --- LAYER 2: ETHERNET ---
+
 int Eth::header_len() const {
 	return sizeof(Eth);
 }
 
-
 uint8_t* Eth::data() {
 	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
-
 
 void Eth::print() const {
 	std::cout << "Ethernet Header" << std::endl
@@ -84,11 +87,9 @@ void Eth::print() const {
 		<< "   |-Protocol             : " << ntohs(h_proto) << std::endl;
 }
 
-
 void Eth::print_raw() const {
 	Util::print_raw(reinterpret_cast<const uint8_t*>(this), header_len());
 }
-
 
 std::string Eth::mac_addr_to_str(const uint8_t* mac_addr)
 {
@@ -98,22 +99,23 @@ std::string Eth::mac_addr_to_str(const uint8_t* mac_addr)
 }
 
 
+
+
+// --- LAYER 3: IP ---
+
 int Ip::header_len() const {
 	// ip header length is usually 20 bytes
 	return ihl * 4;
 }
-
 
 int Ip::total_len() const {
 	// size of packet
 	return ntohs(tot_len);
 }
 
-
 uint8_t* Ip::data() {
 	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
-
 
 void Ip::print() const {
 	std::cout << "IP Header" << std::endl
@@ -137,14 +139,12 @@ void Ip::print_raw() const {
 	Util::print_raw(reinterpret_cast<const uint8_t*>(this), total_len());
 }
 
-
 uint16_t Ip::checksum() const {
 	// Set ip->check to 0 before calling this function
 	assert(this->check == 0);
 
 	return Util::calculate_checksum(this, header_len(), 0, 0, 0);
 }
-
 
 std::string Ip::ip_addr_to_str(uint32_t ip_addr) {
 	const uint8_t* p = reinterpret_cast<uint8_t*>(&ip_addr);
@@ -153,6 +153,10 @@ std::string Ip::ip_addr_to_str(uint32_t ip_addr) {
 	return buffer.str();
 }
 
+
+
+
+// --- LAYER 4: TCP ---
 
 void Tcp::print() const {
 	std::cout << "TCP Header" << std::endl
@@ -179,7 +183,6 @@ void Tcp::print() const {
 		<< "   |-Urgent Pointer       : " << urg_ptr << std::endl;
 }
 
-
 uint16_t Tcp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 	// Set tcp->check to 0 before calling this function
 	assert(this->check == 0);
@@ -188,20 +191,21 @@ uint16_t Tcp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 }
 
 
+
+
+// --- LAYER 4: UDP ---
+
 int Udp::header_len() const {
 	return sizeof(Udp);
 }
-
 
 int Udp::total_len() const {
 	return ntohs(len);
 }
 
-
 uint8_t* Udp::data() {
 	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
-
 
 void Udp::print() const {
 	std::cout << "UDP Header" << std::endl
@@ -211,7 +215,6 @@ void Udp::print() const {
 		<< "   |-UDP Checksum         : " << check << std::endl;
 }
 
-
 uint16_t Udp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 	// Set udp->check to 0 before calling this function
 	assert(this->check == 0);
@@ -219,6 +222,10 @@ uint16_t Udp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 	return Util::calculate_checksum(this, len, Ip::IPPROTO_UDP, src_addr, dest_addr);
 }
 
+
+
+
+// --- LAYER 4: ICMP ---
 
 void Icmp::print() const {
 	std::cout << "ICMP Header" << std::endl
@@ -233,7 +240,6 @@ void Icmp::print() const {
 		<< "   |-Code                 : " << (int)code << std::endl
 		<< "   |-Checksum             : " << ntohs(check) << std::endl;
 }
-
 
 uint16_t Icmp::checksum(int len) const {
 	// Set icmp->check to 0 before calling this function

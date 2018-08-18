@@ -12,7 +12,6 @@ TEST(VpnPacketTestHello, CreateVpnPacketHelloWithShortMessage) {
 	EXPECT_EQ(expected, std::vector<uint8_t>(hello_pointer, hello_pointer + expected.size()));
 }
 
-
 TEST(VpnPacketTestHello, CreateVpnPacketHelloWithLongMessage) {
 	VpnPacketHello hello{ "Hello, world! How are you?" };
 	std::vector<uint8_t> expected = {

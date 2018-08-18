@@ -8,7 +8,6 @@ static uint8_t packet[41] = {
 	0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21
 };
 
-
 TEST(PacketTestUdp, ParseUdpPacketCorrectly) {
 	Ip* ip = (Ip*)packet;
 	Udp* udp = (Udp*)ip->data();
@@ -19,7 +18,6 @@ TEST(PacketTestUdp, ParseUdpPacketCorrectly) {
 	EXPECT_EQ(udp->total_len(), udp_len_from_ip);
 }
 
-
 TEST(PacketTestUdp, VerifyPayload) {
 	Ip* ip = (Ip*)packet;
 	Udp* udp = (Udp*)ip->data();
@@ -27,7 +25,6 @@ TEST(PacketTestUdp, VerifyPayload) {
 	std::string payload_str = std::string((const char*)udp->data(), payload_len);
 	EXPECT_EQ(std::string("Hello, world!"), payload_str);
 }
-
 
 TEST(PacketTestUdp, CalculateUdpChecksumCorrectly) {
 	Ip* ip = (Ip*)packet;
