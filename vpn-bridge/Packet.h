@@ -32,9 +32,9 @@ public:
 	uint16_t        h_proto;                                // packet type id
 
 	int header_len() const;
-	uint8_t* data();
-	void print() const;
-	void print_raw() const;
+	uint8_t* payload();
+	void print_header() const;
+	void print_header_raw() const;
 	static std::string mac_addr_to_str(const uint8_t* mac_addr);
 };
 
@@ -67,9 +67,9 @@ public:
 
 	int header_len() const;
 	int total_len() const;
-	uint8_t* data();
-	void print() const;
-	void print_raw() const;
+	uint8_t* payload();
+	void print_header() const;
+	void print_header_raw() const;
 	uint16_t checksum() const;
 	static std::string ip_addr_to_str(uint32_t ip_addr);
 };
@@ -93,7 +93,10 @@ public:
 	uint16_t        check;
 	uint16_t        urg_ptr;
 
-	void print() const;
+	int header_len() const;
+	uint8_t* payload();
+	void print_header() const;
+	void print_header_raw() const;
 	uint16_t checksum(int len, uint32_t src_addr, uint32_t dest_addr) const;
 };
 
@@ -106,8 +109,10 @@ public:
 
 	int header_len() const;
 	int total_len() const;
-	uint8_t* data();
-	void print() const;
+	uint8_t* payload();
+	void print_header() const;
+	void print_header_raw() const;
+	void print_payload_raw() const;
 	uint16_t checksum(int len, uint32_t src_addr, uint32_t dest_addr) const;
 };
 
@@ -131,7 +136,7 @@ public:
 		} frag;
 	} un;
 
-	void print() const;
+	void print_header() const;
 	uint16_t checksum(int len) const;
 };
 

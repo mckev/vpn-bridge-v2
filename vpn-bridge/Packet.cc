@@ -76,18 +76,18 @@ int Eth::header_len() const {
 	return sizeof(Eth);
 }
 
-uint8_t* Eth::data() {
+uint8_t* Eth::payload() {
 	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
 
-void Eth::print() const {
+void Eth::print_header() const {
 	std::cout << "Ethernet Header" << std::endl
 		<< "   |-Destination Address  : " << Eth::mac_addr_to_str(h_dest) << std::endl
 		<< "   |-Source Address       : " << Eth::mac_addr_to_str(h_source) << std::endl
 		<< "   |-Protocol             : " << ntohs(h_proto) << std::endl;
 }
 
-void Eth::print_raw() const {
+void Eth::print_header_raw() const {
 	Util::print_raw(reinterpret_cast<const uint8_t*>(this), header_len());
 }
 
@@ -113,11 +113,11 @@ int Ip::total_len() const {
 	return ntohs(tot_len);
 }
 
-uint8_t* Ip::data() {
+uint8_t* Ip::payload() {
 	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
 
-void Ip::print() const {
+void Ip::print_header() const {
 	std::cout << "IP Header" << std::endl
 		<< "   |-IP Version           : " << (int)version << std::endl
 		<< "   |-IP Header Length     : " << (int)ihl << " dwords or " << ihl * 4 << " bytes" << std::endl;
@@ -135,8 +135,8 @@ void Ip::print() const {
 		<< "   |-Destination IP       : " << Ip::ip_addr_to_str(daddr) << std::endl;
 }
 
-void Ip::print_raw() const {
-	Util::print_raw(reinterpret_cast<const uint8_t*>(this), total_len());
+void Ip::print_header_raw() const {
+	Util::print_raw(reinterpret_cast<const uint8_t*>(this), header_len());
 }
 
 uint16_t Ip::checksum() const {
@@ -158,7 +158,15 @@ std::string Ip::ip_addr_to_str(uint32_t ip_addr) {
 
 // --- LAYER 4: TCP ---
 
-void Tcp::print() const {
+int Tcp::header_len() const {
+	return doff * 4;
+}
+
+uint8_t* Tcp::payload() {
+	return reinterpret_cast<uint8_t*>(this) + header_len();
+}
+
+void Tcp::print_header() const {
 	std::cout << "TCP Header" << std::endl
 		<< "   |-Source Port          : " << ntohs(source) << std::endl
 		<< "   |-Destination Port     : " << ntohs(dest) << std::endl
@@ -183,6 +191,10 @@ void Tcp::print() const {
 		<< "   |-Urgent Pointer       : " << urg_ptr << std::endl;
 }
 
+void Tcp::print_header_raw() const {
+	Util::print_raw(reinterpret_cast<const uint8_t*>(this), header_len());
+}
+
 uint16_t Tcp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 	// Set tcp->check to 0 before calling this function
 	assert(this->check == 0);
@@ -203,16 +215,24 @@ int Udp::total_len() const {
 	return ntohs(len);
 }
 
-uint8_t* Udp::data() {
+uint8_t* Udp::payload() {
 	return reinterpret_cast<uint8_t*>(this) + header_len();
 }
 
-void Udp::print() const {
+void Udp::print_header() const {
 	std::cout << "UDP Header" << std::endl
 		<< "   |-Source Port          : " << ntohs(source) << std::endl
 		<< "   |-Destination Port     : " << ntohs(dest) << std::endl
 		<< "   |-UDP Length           : " << ntohs(len) << std::endl
 		<< "   |-UDP Checksum         : " << check << std::endl;
+}
+
+void Udp::print_header_raw() const {
+	Util::print_raw(reinterpret_cast<const uint8_t*>(this), header_len());
+}
+
+void Udp::print_payload_raw() const {
+	Util::print_raw(reinterpret_cast<const uint8_t*>(this) + header_len(), total_len() - header_len());
 }
 
 uint16_t Udp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
@@ -227,7 +247,7 @@ uint16_t Udp::checksum(int len, uint32_t src_addr, uint32_t dest_addr) const {
 
 // --- LAYER 4: ICMP ---
 
-void Icmp::print() const {
+void Icmp::print_header() const {
 	std::cout << "ICMP Header" << std::endl
 		<< "   |-Type                 : " << (int)type << std::endl;
 	if (type == Icmp::ICMP_TIME_EXCEEDED) {
