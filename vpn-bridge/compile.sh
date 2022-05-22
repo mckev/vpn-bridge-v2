@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 CXXFLAGS="-std=c++11 -Wall -O3"
 
 machine=`uname -m`
@@ -8,7 +10,7 @@ if [ "$machine" = "x86_64" ]; then
     #    yum install -y gcc-c++
     CXXFLAGS="$CXXFLAGS -m64"
 
-elif [ "$machine" = "armv6l" ]; then
+elif [ "$machine" = "aarch64" ]; then
     CXXFLAGS="$CXXFLAGS"
 
 else

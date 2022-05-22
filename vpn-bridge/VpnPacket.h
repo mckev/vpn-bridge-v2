@@ -15,7 +15,7 @@ public:
 	uint16_t        msg_size;
 
 	static constexpr auto MAGIC = 0x484B;
-	static enum MsgType {
+	enum MsgType {
 		HELLO = 10
 	};
 
