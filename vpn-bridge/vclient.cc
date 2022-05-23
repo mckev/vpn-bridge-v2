@@ -49,8 +49,8 @@ int main() {
 		{
 			// Layer 2: Ethernet packet
 			Eth* eth = reinterpret_cast<Eth*>(buffer);
-			eth->print_header();
-			eth->print_header_raw();
+			// eth->print_header();
+			// eth->print_header_raw();
 			if (ntohs(eth->h_proto) != Eth::ETH_P_IP) continue;
 
 			// Layer 3: IP packet
@@ -60,8 +60,6 @@ int main() {
 #endif // HOSTGATOR
 
 		// Layer 3
-		ip->print_header();
-		ip->print_header_raw();
 		{
 			// Verify that our IP checksum algorithm is correct
 			uint16_t original_checksum = ip->check;
@@ -82,6 +80,8 @@ int main() {
 			if (ntohs(tcp->source) == 22 || ntohs(tcp->dest) == 22) {
 				continue;
 			}
+			ip->print_header();
+			ip->print_header_raw();
 			tcp->print_header();
 			tcp->print_header_raw();
 			std::cout << "Payload:" << std::endl;
@@ -104,6 +104,8 @@ int main() {
 		case Ip::IPPROTO_UDP:
 		{
 			Udp* udp = reinterpret_cast<Udp*>(ip->payload());
+			ip->print_header();
+			ip->print_header_raw();
 			udp->print_header();
 			udp->print_header_raw();
 			std::cout << "Payload:" << std::endl;
@@ -127,6 +129,8 @@ int main() {
 		case Ip::IPPROTO_ICMP:
 		{
 			Icmp* icmp = reinterpret_cast<Icmp*>(ip->payload());
+			ip->print_header();
+			ip->print_header_raw();
 			icmp->print_header();
 			{
 				// Verify that our ICMP checksum algorithm is correct
